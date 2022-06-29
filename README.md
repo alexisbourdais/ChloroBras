@@ -6,13 +6,15 @@
 ## Parameters
 
 Defines the pipeline inputs parameters
+
 Each of the following parameters can be specified as command line options or in the config file
+
 Beware of quotes when necessary and do not forget to modify the path when necessary
 
 
 ### Test_assembler
 
-   Reads directory
+    Reads directory
     --readsFiles                    Path to input data, default: "./samples/*_R{1,2}.fastq.gz"
 
     Results directory
