@@ -9,7 +9,7 @@ Defines the pipeline inputs parameters
 
 Each of the following parameters can be specified as command line options or in the config file
 
-Beware of quotes when necessary and do not forget to modify the path when necessary
+Beware of quotes and do not forget to modify the path when necessary
 
 
 ### Test_assembler
