@@ -3,7 +3,7 @@
 """
 This script allows to select the assembly of GetOrganelle whose ndhF gene is in the forward direction
 The assemblies obtained for the same sample are specified in argument 1 and 2
-The assembly for which the sequence specified in the pat variable is found is redirected to the file in argument 3
+Assembly for which the sequence specified in the pat variable is found is redirected to the file in argument 3
 """
 
 #pattern in sequence of ndhF forward
