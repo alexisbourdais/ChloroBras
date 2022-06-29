@@ -3,6 +3,7 @@
 /*
 ===============================================================
  Plastome Analysis Pipeline. Started April 2022.
+ Testing with Nextflow v21.10.6
  #### Homepage / Documentation
  https://github.com/Airgetlam35/ChloroBras/
  #### Authors
