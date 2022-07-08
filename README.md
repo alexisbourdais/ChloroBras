@@ -2,11 +2,40 @@
 
 ![Alt text](https://user-images.githubusercontent.com/108393526/176895796-71946738-161f-4c90-a7ec-bf478ae8bbcf.png)
 
+# Quick overview
+
+ChloroBras is a project allowing the assembly and automatic analysis of chloroplast genome, developed for Brassica but transposable to any family of flowering plants.
+
+
 # Quick start
 
-Nextflow can be installed from Bioconda
+Nextflow and most tools can be installed from Bioconda
+
+## Nextflow
 
 `conda install -c bioconda nextflow`
+
+## Seqtk
+
+`conda install -c bioconda seqtk`
+
+## GetOrganelle
+
+`conda install -c bioconda getorganelle`
+
+## Nucmer
+
+`conda install -c bioconda mummer`
+
+## Mafft
+
+`conda install -c bioconda mafft`
+
+## RAxML
+
+`conda install -c bioconda mummer`
+
+
 
 
 ## Parameters
