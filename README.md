@@ -2,6 +2,12 @@
 
 ![Alt text](https://user-images.githubusercontent.com/108393526/176895796-71946738-161f-4c90-a7ec-bf478ae8bbcf.png)
 
+# Quick start
+
+Nextflow can be installed from Bioconda
+
+'conda install -c bioconda nextflow'
+
 
 ## Parameters
 
