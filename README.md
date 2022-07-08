@@ -1,38 +1,39 @@
 # ChloroBras!
 
+## Quick overview
+
 ![Alt text](https://user-images.githubusercontent.com/108393526/176895796-71946738-161f-4c90-a7ec-bf478ae8bbcf.png)
 
-# Quick overview
+ChloroBras is a project allowing the automatic assembly and analysis of chloroplast genome, developed for *Brassica* but transposable to any family of flowering plants. It consists of two nextflow pipelines.
+The first one (**test_assembler.nf**) allows the assembly of chloroplastic genomes from paired Illumina reads, via three different assemblers (**GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler**). It then aligns with **Nucmer** these genomes with a reference genome (*B. oleracea* HDEM, available on NCBI) and allows the visualization of the quality of these assemblies via a dot-plot created by **Mummer**. A sub-sampling step via **Seqtk** was added for the **Fast-Plast** and **ORGanelle ASseMbler** assemblers, as the samples from which the pipeline was developed were originally intended for the study of nuclear polymorphisms, the assembly could take several days because of the large number of reads present.
 
-ChloroBras is a project allowing the assembly and automatic analysis of chloroplast genome, developed for Brassica but transposable to any family of flowering plants.
+The second pipeline (**analysis_chloro.nf**) allows the assembly by **Getorganelle**, the selection by a bash script (**script_selection_assembly.sh**) of the assembly with the Small Single Copy in the right direction (**GetOrganelle** provides two assemblies per sample with the only difference being the direction of the Small Single Copy), the alignment of the different assemblies by mafft and finally the creation of a phylogenetic tree by RAxML.
 
-
-
-# Quick start
+## Quick start
 
 Nextflow and most tools can be installed from Bioconda
 
-## Nextflow
+### Nextflow
 
 `conda install -c bioconda nextflow`
 
-## Seqtk
+### Seqtk
 
 `conda install -c bioconda seqtk`
 
-## GetOrganelle
+### GetOrganelle
 
 `conda install -c bioconda getorganelle`
 
-## Nucmer
+### Nucmer
 
 `conda install -c bioconda mummer`
 
-## Mafft
+### Mafft
 
 `conda install -c bioconda mafft`
 
-## RAxML
+### RAxML
 
 `conda install -c bioconda mummer`
 
