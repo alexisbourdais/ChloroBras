@@ -51,7 +51,7 @@ Nextflow and most tools can be installed from conda
 
 ### Fast-Plast and ORGanelle ASseMbler
 
-These tools have been integrated by a docker image loaded by singularity.
+These tools have been integrated by a docker image loaded by singularity. (https://hub.docker.com/u/chloroextractorteam)
 
 ## Instruction
 
