@@ -5,9 +5,12 @@
 ![Alt text](https://user-images.githubusercontent.com/108393526/176895796-71946738-161f-4c90-a7ec-bf478ae8bbcf.png)
 
 ChloroBras is a project allowing the automatic assembly and analysis of chloroplast genome, developed for *Brassica* but transposable to any family of flowering plants. It consists of two nextflow pipelines.
-The first one (**test_assembler.nf**) allows the assembly of chloroplastic genomes from paired Illumina reads, via three different assemblers (**GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler**). It then aligns with **Nucmer** these genomes with a reference genome (*B. oleracea* HDEM, available on NCBI) and allows the visualization of the quality of these assemblies via a dot-plot created by **Mummer**. A sub-sampling step via **Seqtk** was added for the **Fast-Plast** and **ORGanelle ASseMbler** assemblers, as the samples from which the pipeline was developed were originally intended for the study of nuclear polymorphisms, the assembly could take several days because of the large number of reads present.
+The first one (**test_assembler.nf**) allows the assembly of chloroplastic genomes from paired Illumina reads, via three different assemblers (**GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler**). It then aligns with **Nucmer** these genomes with a reference genome (*B. oleracea* HDEM, available on NCBI) and allows the visualization of the quality of these assemblies via a dot-plot created by **Mummer**. A sub-sampling step via **Seqtk** was added for the **Fast-Plast** and **ORGanelle ASseMbler** assemblers, as the samples from which the pipeline was developed were originally intended for the study of nuclear polymorphisms, the assembly could take several days because of the large number of reads present. (**GetOrganelle** is able to perform its own subsampling.)
 
-The second pipeline (**analysis_chloro.nf**) allows the assembly by **Getorganelle**, the selection by a bash script (**script_selection_assembly.sh**) of the assembly with the Small Single Copy in the right direction (**GetOrganelle** provides two assemblies per sample with the only difference being the direction of the Small Single Copy), the alignment of the different assemblies by mafft and finally the creation of a phylogenetic tree by RAxML.
+The second pipeline (**analysis_chloro.nf**) allows the assembly by **Getorganelle** (which showed the best results on our data), the selection by a bash script (**script_selection_assembly.sh**) of the assembly with the Small Single Copy in the right direction (**GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC), the alignment of the different assemblies by **Mafft** and finally the creation of a phylogenetic tree by **RAxML**. A bash script (**rename_fasta_header_phylo.sh**) allows to rename the headers of the sequences in order to display the desired information on the phylogenetic tree.
+
+A python script (**rename_fasta_header.py**) allows to rename the headers after the assembly according to the name of the sample and the assembler.
+A bash script (**rename_fasta_header_phylo.sh**) that reads a csv file (**tab_correspondence_phylo.csv**) allows to rename the headers of the sequences in order to display the desired information on the phylogenetic tree.
 
 ## Quick start
 
@@ -25,7 +28,7 @@ Nextflow and most tools can be installed from Bioconda
 
 `conda install -c bioconda getorganelle`
 
-### Nucmer
+### Mummer/Nucmer
 
 `conda install -c bioconda mummer`
 
@@ -37,8 +40,9 @@ Nextflow and most tools can be installed from Bioconda
 
 `conda install -c bioconda mummer`
 
+### Fast-Plast and ORGanelle ASseMbler
 
-
+These tools have been integrated by a docker image loaded by singularity.
 
 ## Parameters
 
