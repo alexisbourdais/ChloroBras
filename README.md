@@ -137,12 +137,19 @@ Beware of quotes and do not forget to modify the path when necessary
 ## Documentation
 
 Fast-Plast: https://github.com/mrmckain/Fast-Plast
+
 GetOrganelle: https://github.com/Kinggerm/GetOrganelle
+
 MAFFT: https://mafft.cbrc.jp/alignment/software/
+
 MUMmer/NUCMER: https://mummer4.github.io/index.html
+
 Nextflow: https://www.nextflow.io/docs/latest/index.html
+
 ORGanelle ASseMbler: https://git.metabarcoding.org/org-asm/org-asm
+
 RAxML: https://cme.h-its.org/exelixis/web/software/raxml/
+
 Seqtk: https://github.com/lh3/seqt
 
 ## References
