@@ -10,7 +10,7 @@ The first one (**test_assembler.nf**) allows the assembly of chloroplastic genom
 
 The second pipeline (**analysis_chloro.nf**) allows the assembly by **Getorganelle** (which showed the best results on our data), the selection by a bash script (**script_selection_assembly.sh**) of the assembly with the Small Single Copy in the right direction (**GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC), the alignment of the different assemblies by **Mafft** and finally the creation of a phylogenetic tree by **RAxML**.
 
-The script (**script_selection_assembly.sh**) selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
+The bash script (**script_selection_assembly.sh**) selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
 
 The python script (**rename_fasta_header.py**) renames the headers after the assembly according to the name of the sample and the assembler.
 
