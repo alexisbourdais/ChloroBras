@@ -6,7 +6,7 @@
 
 Nextflow can be installed from Bioconda
 
-'conda install -c bioconda nextflow'
+`conda install -c bioconda nextflow`
 
 
 ## Parameters
