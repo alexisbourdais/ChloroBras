@@ -38,7 +38,7 @@ These tools have been integrated by a docker image loaded by singularity. (https
 Before starting a pipeline, a **directory with all the samples must be prepared**. These should have a structured name like: xxx_R1.fastq.gz and xxx_R2.fastq.gz. It is possible to use symbolic links, which can be created with the following command:
 `ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
 
-The **csv file must also be prepared in advance**.
+The **csv file must also be prepared in advance**. The csv file must also be prepared in advance for the analysis_chloro pipeline. It is composed of the name (xxx) of the sample in the first column, the name of the assemblies obtained by GetOrganelle in the 2nd (xxx_get_1_1) and 3rd column (xxx_get_2_1), and the name to display in the 4th column.
 
 
 After loading the nextflow and singularity environment, you just have to use the following command to start the pipeline:
