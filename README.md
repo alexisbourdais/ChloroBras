@@ -35,8 +35,11 @@ These tools have been integrated by a docker image loaded by singularity. (https
 
 ## Instruction
 
-Before starting a pipeline, a **directory with all the samples must be prepared**. These should have a structured name like: xxx_R1.fastq.gz and xxx_R2.fastq.gz. It is possible to use symbolic links, which can be created with the following command:`ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
+Before starting a pipeline, a **directory with all the samples must be prepared**. These should have a structured name like: xxx_R1.fastq.gz and xxx_R2.fastq.gz. It is possible to use symbolic links, which can be created with the following command:
+`ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
+
 The **csv file must also be prepared in advance**.
+
 
 After loading the nextflow and singularity environment, you just have to use the following command to start the pipeline:
 `nextflow run *pipeline*.nf --option` (Options are optional, see next topic) 
