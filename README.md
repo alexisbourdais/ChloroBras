@@ -19,7 +19,7 @@ The bash script (**rename_fasta_header_phylo.sh**) that reads a csv file (**tab_
 
 ## Installation
 
-Nextflow and most tools can be installed from conda
+Nextflow and singularity can be installed from conda. All the tools using conda in the pipeline will be automatically created and activated.
 
 ### Nextflow
 
@@ -28,26 +28,6 @@ Nextflow and most tools can be installed from conda
 ### Singularity
 
 `conda install -c conda-forge singularity`
-
-### Seqtk
-
-`conda install -c bioconda seqtk`
-
-### GetOrganelle
-
-`conda install -c bioconda getorganelle`
-
-### Mummer/Nucmer
-
-`conda install -c bioconda mummer`
-
-### Mafft
-
-`conda install -c bioconda mafft`
-
-### RAxML
-
-`conda install -c bioconda mummer`
 
 ### Fast-Plast and ORGanelle ASseMbler
 
