@@ -19,7 +19,7 @@ The bash script (**rename_fasta_header_phylo.sh**) that reads a csv file (**tab_
 
 ## Installation
 
-Nextflow and singularity can be installed from conda. All the tools using conda in the pipeline will be automatically created and activated.
+Nextflow and singularity can be installed from conda. All tool environments using conda in the pipeline will be automatically created and activated.
 
 ### Nextflow
 
