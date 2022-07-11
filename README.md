@@ -43,6 +43,7 @@ The **csv file must also be prepared in advance**. The csv file must also be pre
 
 
 After loading the nextflow and singularity environment, you just have to use the following command to start the pipeline:
+
 `nextflow run *pipeline*.nf --option` (Options are optional, see next topic) 
 
 
