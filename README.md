@@ -46,6 +46,7 @@ After loading the nextflow and singularity environment, you just have to use the
 
 `nextflow run *pipeline*.nf --option` (Options are optional, see next topic) 
 
+WARNING! Compatibility problem between latest version of Gnuplot and Mummer -> delete the 3 “set mouse” lines in the work/conda/mummer/opt/mummer-3.23/mummerplot file created after installation of the conda environment. WARNING!
 
 ### Paramaters
 
