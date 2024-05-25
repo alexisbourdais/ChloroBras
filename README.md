@@ -43,8 +43,6 @@ Compatibility problem between latest version of Gnuplot and Mummer -> delete the
 
 Each of the following parameters can be specified as command line options or in the config file (**nextflow.config**)
 
-##### ChloroBras
-
     Reads directory
     --readsFiles                    Path to input data, default: "./Samples/*_R{1,2}.fastq.gz"
 
@@ -78,8 +76,6 @@ Each of the following parameters can be specified as command line options or in 
     
 ## Documentation
 
-Fast-Plast: https://github.com/mrmckain/Fast-Plast
-
 GetOrganelle: https://github.com/Kinggerm/GetOrganelle
 
 MAFFT: https://mafft.cbrc.jp/alignment/software/
@@ -88,11 +84,7 @@ MUMmer/NUCMER: https://mummer4.github.io/index.html
 
 Nextflow: https://www.nextflow.io/docs/latest/index.html
 
-ORGanelle ASseMbler: https://git.metabarcoding.org/org-asm/org-asm
-
 RAxML: https://cme.h-its.org/exelixis/web/software/raxml/
-
-Seqtk: https://github.com/lh3/seqt
 
 ## References
     
@@ -104,12 +96,6 @@ Jin, Jian-Jun, Wen-Bin Yu, Jun-Bo Yang, Yu Song, Claude W. dePamphilis, Ting-Shu
 
 Katoh, K. « MAFFT: a novel method for rapid multiple sequence alignment based on fast Fourier transform ». Nucleic Acids Research 30, n o 14 (15 juillet 2002): 3059-66. https://doi.org/10.1093/nar/gkf436.
 
-Kurtzer, Gregory M., Vanessa Sochat, et Michael W. Bauer. « Singularity: Scientific Containers for Mobility of Compute ». Édité par Attila Gursoy. PLOS ONE 12, n o 5 (11 mai 2017): e0177459. https://doi.org/10.1371/journal.pone.0177459.
-
 Marçais, Guillaume, Arthur L. Delcher, Adam M. Phillippy, Rachel Coston, Steven L. Salzberg, et Aleksey Zimin. « MUMmer4: A Fast and Versatile Genome Alignment System ». Édité par Aaron E. Darling. PLOS Computational Biology 14, n o 1 (26 janvier 2018): e1005944. https://doi.org/10.1371/journal.pcbi.1005944.
 
 Stamatakis, Alexandros. « RAxML Version 8: A Tool for Phylogenetic Analysis and Post-Analysis of Large Phylogenies ». Bioinformatics 30, n o 9 (1 mai 2014): 1312-13. https://doi.org/10.1093/bioinformatics/btu033.
-
-Fast-Plast: McKain et Wilson, 2017
-
-ORGanelle ASseMbler : Coissac et al. 2019
