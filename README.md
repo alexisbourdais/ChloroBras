@@ -127,7 +127,7 @@ Each of the following parameters can be specified as command line options or in 
     Raxml
     --raxml_model                   Model uses by RAxML, default: "GTRGAMMAI"
 
-The help message can be displayed with the command `nexftlow run chlrobras.nf --help`
+The help message can be displayed with the command `nexftlow run ChloroBras.nf --help`
     
 ## Documentation
 
