@@ -2,9 +2,9 @@
 
 ## Overview
 
-![screenshot](ChloroBrasPipeline.png)
-
 ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis of chloroplast genome, developed for *Brassica* but transposable to any family of flowering plants.
+
+![screenshot](ChloroBrasPipeline.png)
 
 Chloroplast genome assembly by **GetOrganelle**
 
