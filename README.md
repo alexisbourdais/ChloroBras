@@ -39,12 +39,9 @@ Run the pipeline : `nextflow run *pipeline*.nf --option` (Options are optional, 
 
 Results will be created in a Results folder !
 
-### Paramaters
-
-Defines the pipeline inputs parameters
+## Paramaters
 
 Each of the following parameters can be specified as command line options or in the config file (**nextflow.config**)
-
 
 ##### ChloroBras
 
