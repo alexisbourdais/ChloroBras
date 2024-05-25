@@ -30,7 +30,7 @@ It is possible to use symbolic links, which can be created with the following co
 `ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
 
 
-- WARNING :Compatibility problem between latest version of Gnuplot and Mummer
+- WARNING : Compatibility problem between latest version of Gnuplot and Mummer
 
 -> delete the 3 “set mouse” lines in the work/conda/mummer/opt/mummer-3.23/mummerplot file created after installation of the conda environment :
 
