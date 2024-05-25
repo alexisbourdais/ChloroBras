@@ -61,8 +61,6 @@ Defines the pipeline inputs parameters
 
 Each of the following parameters can be specified as command line options or in the config file (**nextflow.config**)
 
-Beware of quotes and do not forget to modify the path when necessary
-
 
 ##### Test_assembler
 
@@ -128,6 +126,8 @@ Beware of quotes and do not forget to modify the path when necessary
 
     Raxml
     --raxml_model                   Model uses by RAxML, default: "GTRGAMMAI"
+
+The help message can be displayed with the command `nexftlow run chlrobras.nf --help`
     
 ## Documentation
 
