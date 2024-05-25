@@ -39,7 +39,7 @@ Run the pipeline : `nextflow run *pipeline*.nf --option` (Options are optional, 
 
 Results will be created in a Results folder !
 
-## Paramaters
+## Parameters
 
 Each of the following parameters can be specified as command line options or in the config file (**nextflow.config**)
 
