@@ -24,11 +24,14 @@ Install Nextflow and Conda.
 Download and place in the same folder **ChloroBras**, **nextflow.config** and **Tools** (unzip the archive which contains environnements conda and scripts file.
 
 Create a directory **Samples** with sequences to use. These should have a structured name like: xxx_R1.fastq.gz and xxx_R2.fastq.gz. It is possible to use symbolic links, which can be created with the following command:
+
 `ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
+
 
 WARNING! 
 Compatibility problem between latest version of Gnuplot and Mummer -> delete the 3 “set mouse” lines in the work/conda/mummer/opt/mummer-3.23/mummerplot file created after installation of the conda environment. 
 `sed -i '/set mouse/d' ./work/conda/mummer*/opt/mummer-3.23/mummerplot`
+
 
 Run the pipeline : `nextflow run *pipeline*.nf --option` (Options are optional, see next topic) 
 
