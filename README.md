@@ -23,7 +23,7 @@ The bash script (**script_selection_assembly.sh**) selects the correctly structu
 
 - Download and place in the same folder **ChloroBras**, **nextflow.config** and **Tools** (environnements conda, scripts file and reference fasta).
 
-- Create a directory **Samples** with sequences to use. These should have a structured name like: xxx_R1.fastq.gz and xxx_R2.fastq.gz. 
+- Create a directory **Samples** with sequences to use. These should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz**. 
 
 It is possible to use symbolic links, which can be created with the following command:
 
