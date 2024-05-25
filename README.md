@@ -50,6 +50,8 @@ WARNING!
 
 Compatibility problem between latest version of Gnuplot and Mummer -> delete the 3 “set mouse” lines in the work/conda/mummer/opt/mummer-3.23/mummerplot file created after installation of the conda environment. 
 
+`sed -i '/set mouse/d' ./work/conda/mummer*/opt/mummer-3.23/mummerplot`
+
 WARNING!
 
 ### Paramaters
