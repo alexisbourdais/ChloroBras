@@ -6,8 +6,8 @@
 
 ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis of chloroplast genome, developed for *Brassica* but transposable to any family of flowering plants.
 
--> Chloroplast genome assembly by **GetOrganelle**
-A python script (**rename_fasta_header.py**) renames the headers after the assembly according to the name of the sample and the assembly number.
+    Chloroplast genome assembly by **GetOrganelle**
+    A python script (**rename_fasta_header.py**) renames the headers after the assembly according to the name of the sample and the assembly number.
 
 -> Selection of the assembly with the Small Single Copy in the right direction (**GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC)
 The bash script (**script_selection_assembly.sh**) selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
