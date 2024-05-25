@@ -4,7 +4,7 @@
 
 ![Alt text](https://user-images.githubusercontent.com/108393526/176895796-71946738-161f-4c90-a7ec-bf478ae8bbcf.png)
 
-ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis of chloroplast genome, developed for *Brassica* but transposable to any family of flowering plants :
+ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis of chloroplast genome, developed for *Brassica* but transposable to any family of flowering plants.
 
 Chloroplast genome assembly by **GetOrganelle**
 
@@ -27,16 +27,12 @@ Create a directory **Samples** with sequences to use. These should have a struct
 `ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
 
 WARNING! 
-
 Compatibility problem between latest version of Gnuplot and Mummer -> delete the 3 “set mouse” lines in the work/conda/mummer/opt/mummer-3.23/mummerplot file created after installation of the conda environment. 
 `sed -i '/set mouse/d' ./work/conda/mummer*/opt/mummer-3.23/mummerplot`
-
-WARNING!
 
 Run the pipeline : `nextflow run *pipeline*.nf --option` (Options are optional, see next topic) 
 
 Results will be created in a Results folder !
-
 
 ### Paramaters
 
