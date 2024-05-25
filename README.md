@@ -10,9 +10,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 - A python script (**rename_fasta_header.py**) renames the headers after the assembly according to the name of the sample and the assembly number.
 
-- Selection of the assembly with the Small Single Copy in the right direction (**GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC).
-
-The bash script (**script_selection_assembly.sh**) selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
+- Selection of the assembly with the Small Single Copy in the right direction (**GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC). The bash script (**script_selection_assembly.sh**) selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
 
 - Alignment with **Mafft**
 
@@ -26,16 +24,14 @@ The bash script (**script_selection_assembly.sh**) selects the correctly structu
 
 - Create a directory **Samples** with sequences to use. These should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz**. 
 
-It is possible to use symbolic links, which can be created with the following command:
+    It is possible to use symbolic links, which can be created with the following command:
 
-`ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
+    `ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
 
 
-- WARNING : Compatibility problem between latest version of Gnuplot and Mummer
+- WARNING! : Compatibility problem between latest version of Gnuplot and Mummer
 
--> delete the 3 “set mouse” lines in the work/conda/mummer/opt/mummer-3.23/mummerplot file created after installation of the conda environment :
-
-`sed -i '/set mouse/d' ./work/conda/mummer*/opt/mummer-3.23/mummerplot`
+    => delete the 3 “set mouse” lines in the work/conda/mummer/opt/mummer-3.23/mummerplot file created after installation of the conda environment : `sed -i '/set mouse/d' ./work/conda/mummer*/opt/mummer-3.23/mummerplot`
 
 - Run the pipeline : `nextflow run ChloroBras.nf --option` (Options are optional, see next topic) 
 
