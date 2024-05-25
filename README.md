@@ -34,6 +34,7 @@ Compatibility problem between latest version of Gnuplot and Mummer -> delete the
 `sed -i '/set mouse/d' ./work/conda/mummer*/opt/mummer-3.23/mummerplot`
 
 
+
 Run the pipeline : `nextflow run *pipeline*.nf --option` (Options are optional, see next topic) 
 
 Results will be created in a Results folder !
