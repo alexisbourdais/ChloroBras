@@ -84,6 +84,12 @@ Nextflow: https://www.nextflow.io/docs/latest/index.html
 
 RAxML: https://cme.h-its.org/exelixis/web/software/raxml/
 
+Fast-Plast: https://github.com/mrmckain/Fast-PlastORGanelle ASseMbler: https://git.metabarcoding.org/org-asm/org-asmSeqtk: https://github.com/lh3/seqt
+
+ORGanelle ASseMbler: https://git.metabarcoding.org/org-asm/org-asm
+
+Seqtk: https://github.com/lh3/seqt
+
 ## References
     
 P. Di Tommaso, et al. Nextflow enables reproducible computational workflows. Nature Biotechnology 35, 316–319 (2017) doi:10.1038/nbt.3820
@@ -97,3 +103,9 @@ Katoh, K. « MAFFT: a novel method for rapid multiple sequence alignment based o
 Marçais, Guillaume, Arthur L. Delcher, Adam M. Phillippy, Rachel Coston, Steven L. Salzberg, et Aleksey Zimin. « MUMmer4: A Fast and Versatile Genome Alignment System ». Édité par Aaron E. Darling. PLOS Computational Biology 14, n o 1 (26 janvier 2018): e1005944. https://doi.org/10.1371/journal.pcbi.1005944.
 
 Stamatakis, Alexandros. « RAxML Version 8: A Tool for Phylogenetic Analysis and Post-Analysis of Large Phylogenies ». Bioinformatics 30, n o 9 (1 mai 2014): 1312-13. https://doi.org/10.1093/bioinformatics/btu033.
+
+Kurtzer, Gregory M., Vanessa Sochat, et Michael W. Bauer. « Singularity: Scientific Containers for Mobility of Compute ». Édité par Attila Gursoy. PLOS ONE 12, n o 5 (11 mai 2017): e0177459. https://doi.org/10.1371/journal.pone.0177459.
+
+Fast-Plast: McKain et Wilson, 2017
+
+ORGanelle ASseMbler : Coissac et al. 2019
