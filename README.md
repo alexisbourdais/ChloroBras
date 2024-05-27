@@ -2,13 +2,13 @@
 
 ## Overview
 
-ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis of chloroplast genome, developed for *Brassica* but transposable to any family of flowering plants.
+ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis of chloroplast genome from paired Illumina reads, developed for *Brassica* but transposable to any family of flowering plants.
 
 ![screenshot](ChloroBrasPipeline.png)
 
 **Mode Test**
 - Sub-sampling step via **Seqtk** for **Fast-Plast** and **ORGanelle ASseMbler****
-- Chloroplast genome assembly from paired Illumina reads by **GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler**
+- Chloroplast genome assembly by **GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler**
 - Renaming headers (**rename_fasta_header.py**) according to the name of the sample and the assembler to shorten them and avoid errors
 - Alignment with **Nucmer** thanks a reference genome 
 - Visualization of the quality of these assemblies via a dot-plot created by **Mummer**.
