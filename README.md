@@ -33,36 +33,53 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
     => delete the 3 “set mouse” lines in the work/conda/mummer/opt/mummer-3.23/mummerplot file created after installation of the conda environment : `sed -i '/set mouse/d' ./work/conda/mummer*/opt/mummer-3.23/mummerplot`
 
-- Run the pipeline : `nextflow run ChloroBras.nf --option` (Options are optional, see next topic) 
+- Run the pipeline : `Command : nextflow run ChloroBras.nf --workflow [test/analysis]`
 
-- Results will be created in a Results folder !
+- See results in Results folder !
 
 ## Parameters
 
 Each of the following parameters can be specified as command line options or in the config file (**nextflow.config**)
 
+    REQUIRED parameter
+
+    Workflow
+    --workflow [test/analysis]      test : assembles genomes with the three assemblers, allows quality assessment via dotplot
+                                    analysis : assemble genomes with getorganelle and create phylogenetic tree
+
+    OPTIONAL parameter
+
     Reads directory
-    --readsFiles                    Path to input data, default: "./Samples/*_R{1,2}.fastq.gz"
+    --readsFiles                    Path to input data, default: "${params.baseDir}/Samples/*_R{1,2}.fastq.gz"
 
     Results directory
-    --resultsDir                    Path to results directory, default: "./Results/"
+    --resultsDir                    Path to results directory, default: "${params.baseDir}/Results/"
 
     GetOrganelle
     --getorganelle_index            Index of GetOrganelle, default: "embplant_pt"
     --getorganelle_kmer             Size of kmers, default: "21,45,65,85,105"
 
+    Sqtk
+    --seqtk_nb_read                 Number of reads to keep, default: 2000000
+
+    FastPlast
+    --fastplast_index               Index of Fast-Plast, default: "Brassicales"
+
+    OrgAsm
+    --orgasm_probes                 Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
+
     Rename_headers
-    --rename_script                 Path to rename_fasta_header.py, default: "./Tools/rename_fasta_header.py"
+    --rename_script                 Path to rename_fasta_header.py, default: "${params.baseDir}/Tools/rename_fasta_header.py"
 
     Nucmer
-    --nucmer_ref                    Path to Fasta reference for alignment, default: "./Tools/brassica_oleracea.fasta"
+    --nucmer_ref                    Path to Fasta reference for alignment, default: "${params.baseDir}/Tools/brassica_oleracea.fasta"
 
     Mummer
     --mummer_axe                    Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
     --mummer_format_output          Format of the plot, default: "png"
 
     Select_assembly
-    --select_assembly_script        Path to script_selection_assembly.sh, default: "./Tools/script_selection_assembly.sh"
+    --select_assembly_script        Path to script_selection_assembly.sh, default: "${params.baseDir}/Tools/script_selection_assembly.sh"
 
     Mafft
     --mafft_method                  Alignment methods, default: "auto"
@@ -74,21 +91,25 @@ Each of the following parameters can be specified as command line options or in 
     
 ## Documentation
 
-GetOrganelle: https://github.com/Kinggerm/GetOrganelle
+- Nextflow: https://www.nextflow.io/docs/latest/index.html
 
-MAFFT: https://mafft.cbrc.jp/alignment/software/
+- Conda: https://conda.io/projects/conda/en/latest/user-guide/install/index.html
 
-MUMmer/NUCMER: https://mummer4.github.io/index.html
+- Singularity: https://docs.sylabs.io/guides/3.0/user-guide/quick_start.html
 
-Nextflow: https://www.nextflow.io/docs/latest/index.html
+- GetOrganelle: https://github.com/Kinggerm/GetOrganelle
 
-RAxML: https://cme.h-its.org/exelixis/web/software/raxml/
+- Fast-Plast: https://github.com/mrmckain/Fast-PlastORGanelle ASseMbler: https://git.metabarcoding.org/org-asm/org-asmSeqtk: https://github.com/lh3/seqt
 
-Fast-Plast: https://github.com/mrmckain/Fast-PlastORGanelle ASseMbler: https://git.metabarcoding.org/org-asm/org-asmSeqtk: https://github.com/lh3/seqt
+- ORGanelle ASseMbler: https://git.metabarcoding.org/org-asm/org-asm
 
-ORGanelle ASseMbler: https://git.metabarcoding.org/org-asm/org-asm
+- Seqtk: https://github.com/lh3/seqt
 
-Seqtk: https://github.com/lh3/seqt
+- MUMmer/NUCMER: https://mummer4.github.io/index.html
+
+- MAFFT: https://mafft.cbrc.jp/alignment/software/
+
+- RAxML: https://cme.h-its.org/exelixis/web/software/raxml/
 
 ## References
     
