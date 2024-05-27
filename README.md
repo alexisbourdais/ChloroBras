@@ -41,7 +41,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
     => delete the 3 “set mouse” lines in the work/conda/mummer/opt/mummer-3.23/mummerplot file created after installation of the conda environment : `sed -i '/set mouse/d' ./work/conda/mummer*/opt/mummer-3.23/mummerplot`
 
-- Run the pipeline : `Command : nextflow run ChloroBras.nf --workflow [test/analysis]`
+- Run the pipeline : `nextflow run ChloroBras.nf --workflow [test/analysis]`
 
 - See results in Results folder !
 
