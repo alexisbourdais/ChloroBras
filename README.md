@@ -6,24 +6,23 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 ![screenshot](ChloroBrasPipeline.png)
 
-
-The first one (**test_assembler.nf**)  
-A sub-sampling step via **Seqtk** was added for the **Fast-Plast** and **ORGanelle ASseMbler** assemblers, as the samples from which 
-the pipeline was developed were originally intended for the study of nuclear polymorphisms, the assembly could take several days 
-because of the large number of reads present. (**GetOrganelle** is able to perform its own subsampling.)
-
-**Mode Test** 
-- Chloroplast genome assembly from paired Illumina reads by **GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler**
+**Mode Test**
+- Sub-sampling step via **Seqtk** added for **Fast-Plast** and **ORGanelle ASseMbler****
+- Chloroplast genome assembly from paired Illumina reads by **GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler*****
 - Alignment with **Nucmer** thanks a reference genome 
 - Visualization of the quality of these assemblies via a dot-plot created by **Mummer**.
 
 **Mode Analysis**
-- Chloroplast genome assembly by **GetOrganelle**
-- Selection of the assembly with the Small Single Copy in the right direction (**GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC). The bash script (**script_selection_assembly.sh**) selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
+- Chloroplast genome assembly by **GetOrganelle*****
+- Selection of the assembly with the Small Single Copy in the right direction (**script_selection_assembly.sh**)**** 
 - Alignment with **Mafft**
 - Phylogenetic tree by **RAxML**
 
-A python script (**rename_fasta_header.py**) renames the headers (to shorten them and avoid errors) after the assembly according to the name of the sample and the assembler.
+** as the samples from which the pipeline was developed were originally intended for the study of nuclear polymorphisms, the assembly could take several days because of the large number of reads present. (**GetOrganelle** is able to perform its own subsampling.)
+
+*** Python script (**rename_fasta_header.py**) renames the headers (to shorten them and avoid errors) after the assembly according to the name of the sample and the assembler.
+
+**** **GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC. The bash script selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
 
 ## Instruction
 
