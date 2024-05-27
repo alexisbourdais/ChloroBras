@@ -1,7 +1,5 @@
 #!/local/env/env nextflow
 
-
-
 /*
 ===============================================================
  Plastome Analysis Pipeline. Started April 2022.
@@ -12,8 +10,6 @@
 ---------------------------------------------------------------
 */
 
-
-
 ///////////////////////////////////////////////////////////
 //////////////////////       HELP       ///////////////////
 ///////////////////////////////////////////////////////////
@@ -21,7 +17,17 @@
 def helpMessage() {
     log.info """
 
-    Each of the following parameters can be specified as command line options or in the config file
+
+    Command : nextflow run ChloroBras.nf --workflow [test/analysis]
+
+
+    REQUIRED parameter
+
+    Workflow
+    --workflow [test/analysis]      test : assembles genomes with the three assemblers, allows quality assessment via dotplot
+                                    analysis : assemble genomes with getorganelle and create phylogenetic tree
+
+    OPTIONAL parameter
 
     Reads directory
     --readsFiles                    Path to input data, default: "${params.baseDir}/Samples/*_R{1,2}.fastq.gz"
@@ -32,6 +38,15 @@ def helpMessage() {
     GetOrganelle
     --getorganelle_index            Index of GetOrganelle, default: "embplant_pt"
     --getorganelle_kmer             Size of kmers, default: "21,45,65,85,105"
+
+    Sqtk
+    --seqtk_nb_read                 Number of reads to keep, default: 2000000
+
+    FastPlast
+    --fastplast_index               Index of Fast-Plast, default: "Brassicales"
+
+    OrgAsm
+    --orgasm_probes                 Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
     Rename_headers
     --rename_script                 Path to rename_fasta_header.py, default: "${params.baseDir}/Tools/rename_fasta_header.py"
@@ -52,6 +67,9 @@ def helpMessage() {
     Raxml
     --raxml_model                   Model uses by RAxML, default: "GTRGAMMAI"
 
+
+    Each of the previous parameters can be specified as command line options or in the config file
+
     """.stripIndent()
 }
 
@@ -63,7 +81,7 @@ if (params.help){
 }
 
 ///////////////////////////////////////////////////////////
-//////////////////////     Processes    ///////////////////
+//////////////////////     Process      ///////////////////
 ///////////////////////////////////////////////////////////
 
 results = file(params.resultsDir)
@@ -90,12 +108,14 @@ process getorganelle {
 
     tag "${sampleId}"
 
+    errorStrategy 'ignore'
+
     input:
     val index
     tuple val(sampleId), path(reads)
 
     output :
-    tuple val(sampleId), path("${sampleId}/embplant_pt.K*.complete.graph1.1.path_sequence.fasta"), path("${sampleId}/embplant_pt.K*.complete.graph1.2.path_sequence.fasta")
+    tuple val(sampleId), path("${sampleId}/embplant_pt.K*.complete.graph1.1.path_sequence.fasta"), path("${sampleId}/embplant_pt.K*.complete.graph1.2.path_sequence.fasta"), val("getorganelle")
 
     script:
     """
@@ -109,20 +129,131 @@ process getorganelle {
     """
 }
 
+process seqtk {
+
+    conda "${params.baseDir}/Tools/seqtk_env.yml"
+
+    tag "${sampleId}"
+    
+    input:
+    tuple val(sampleId), path(reads)
+
+    output:
+    tuple val(sampleId), path("${sampleId}_sub1.fq.gz"), path("${sampleId}_sub2.fq.gz")
+
+    script:
+    """
+    seqtk sample -s666 ${reads[0]} ${params.seqtk_nb_read} |gzip -c - > ${sampleId}_sub1.fq.gz
+    seqtk sample -s666 ${reads[1]} ${params.seqtk_nb_read} |gzip -c - > ${sampleId}_sub2.fq.gz
+    """
+}
+
+process fastplast {
+
+    tag "${sampleId}"
+
+    errorStrategy 'ignore' 
+
+    input:
+    tuple val(sampleId), path(sample_R1), path(sample_R2)
+
+    output:
+    tuple val(sampleId), path("${sampleId}/Final_Assembly/${sampleId}_FULLCP.fsa"),path(""), val("fastplast")
+
+    script:
+    """
+    fast-plast.pl \
+    -1 ${sample_R1} \
+    -2 ${sample_R2} \
+    --name ${sampleId} \
+    --bowtie_index ${params.fastplast_index} \
+    """
+}
+
+process orgasm_index {
+
+    label 'orgasm'
+
+    tag "${sampleId}"
+
+    errorStrategy 'ignore'
+
+    input:
+    tuple val(sampleId), path(sample_R1), path(sample_R2)
+
+    output:
+    tuple val(sampleId), path("${sampleId}.odx")
+
+    script:
+    """
+    oa index --estimate-length=0.9 ${sampleId} ${sample_R1} ${sample_R2}
+    """
+}
+
+process orgasm_buildgraph {
+
+    label 'orgasm'
+
+    tag "${sampleId}"
+
+    errorStrategy 'ignore'
+
+    input:
+    tuple val(sampleId), path(index)
+
+    output:
+    tuple val(sampleId), path(index), path("${sampleId}.oas")
+
+    script:
+    """
+    oa buildgraph --probes ${params.orgasm_probes} ${sampleId} ${sampleId}
+    """
+}
+
+process orgasm_unfold {
+
+    label 'orgasm'
+
+    tag "${sampleId}"
+
+    errorStrategy 'ignore'
+
+    input:
+    tuple val(sampleId), path(index), path(graph)
+
+    output:
+    tuple val(sampleId), path("${sampleId}_org.fasta"), path(""), val("orgasm")
+
+    script:
+    """
+    oa unfold ${sampleId} ${sampleId} > ${sampleId}_org.fasta
+    """
+}
+
 process rename_headers {
 
     tag "${sampleId}"
 
     input:
-    tuple val(sampleId), path(assembly_getorganelle_1), path(assembly_getorganelle_2)
+    tuple val(sampleId), path(assembly_1), path(assembly_2), val(assembler)
     
     output:
-    tuple val(sampleId), path("${sampleId}_get_1"), path("${sampleId}_get_2")
+    tuple val(sampleId), path("${sampleId}_get_1"), path("${sampleId}_get_2"), val(assembler), emit: getorganelle, optional: true
+    tuple val(sampleId), path("${sampleId}_fast"), emit: fastplast, val(assembler), optional: true
+    tuple val(sampleId), path("${sampleId}_org"), emit: orgasm, val(assembler), optional: true
     
     script:
     """
-    python ${params.rename_script} -i ${assembly_getorganelle_1} -n "${sampleId}_get_1" -o "${sampleId}_get_1"
-    python ${params.rename_script} -i ${assembly_getorganelle_2} -n "${sampleId}_get_2" -o "${sampleId}_get_2"
+    if [ "${assembler}" = "getorganelle" ]; then
+    python ${params.rename_script} -i ${assembly_1} -n "${sampleId}_get_1" -o "${sampleId}_get_1"
+    python ${params.rename_script} -i ${assembly_2} -n "${sampleId}_get_2" -o "${sampleId}_get_2"
+
+    elif [ "${assembler}" = "fastplast" ]; then
+    python ${params.rename_script} -i ${assembly_1} -n "${sampleId}_fast" -o "${sampleId}_fast"
+
+    elif [ "${assembler}" = "orgasm" ]; then
+    python ${params.rename_script} -i ${assembly_1} -n "${sampleId}_org" -o "${sampleId}_org"
+    fi
     """
 }
 
@@ -131,10 +262,10 @@ process concaten {
     tag "${sampleId}"
 
     input:
-    tuple val(sampleId), path(assembly_getorganelle_1), path(assembly_getorganelle_2)
+    tuple val(sampleId), path(assembly_getorganelle_1), path(assembly_getorganelle_2), val(assembler)
 
     output:
-    tuple val(sampleId), path("${sampleId}.fasta")
+    tuple val(sampleId), path("${sampleId}.fasta"), val(assembler)
 
     script:
     """
@@ -149,14 +280,14 @@ process nucmer {
     tag "${sampleId}"
 
     input:
-    tuple val(sampleId), path(assembly_cat)
+    tuple val(sampleId), path(assembly), val(assembler)
 
     output:
-    tuple val(sampleId), path("${sampleId}.delta")
+    tuple val(sampleId), path("${sampleId}.delta"), val(assembler)
 
     script:
     """
-    nucmer -p ${sampleId} ${params.nucmer_ref} ${assembly_cat}
+    nucmer -p ${sampleId} ${params.nucmer_ref} ${assembly}
     """
 }
 
@@ -166,21 +297,39 @@ process mummer {
 
     tag "${sampleId}"
 
-    publishDir "${results}/${sampleId}/", mode: 'move'
+    publishDir "${results}/Mummer/${sampleId}/", mode: 'move'
 
     input:
-    tuple val(sampleId), path(align_from_nucmer)
+    tuple val(sampleId), path(align_from_nucmer), val(assembler)
 
     output:
-    tuple val(sampleId), path("${sampleId}_get.png")
+    tuple val(sampleId), path("${sampleId}_get.png"), optional: true
+    tuple val(sampleId), path("${sampleId}_fast.png"), optional: true
+    tuple val(sampleId), path("${sampleId}_org.png"), optional: true
 
     script:
     """
+    if [ "${assembler}" = "getorganelle" ]; then
     mummerplot \
     -x ${params.mummer_axe} \
     -p ${sampleId}_get \
     -t ${params.mummer_format_output} \
     ${align_from_nucmer}
+
+    elif [ "${assembler}" = "fastplast" ]; then
+    mummerplot \
+    -x ${params.mummer_axe} \
+    -p ${sampleId}_fast \
+    -t ${params.mummer_format_output} \
+    ${align_from_nucmer}
+
+    elif [ "${assembler}" = "orgasm" ]; then
+    mummerplot \
+    -x ${params.mummer_axe} \
+    -p ${sampleId}_org \
+    -t ${params.mummer_format_output} \
+    ${align_from_nucmer}    
+    fi
     """
 }
 
@@ -189,7 +338,7 @@ process select_assembly {
     tag "${sampleId}"
 
     input:
-    tuple val(sampleId), path(assembly_getorganelle_1), path(assembly_getorganelle_2)
+    tuple val(sampleId), path(assembly_getorganelle_1), path(assembly_getorganelle_2), val(assembler)
 
     output:
     path("${sampleId}_graph_right")
@@ -255,17 +404,92 @@ process raxml {
 //////////////////////     Workflow     ///////////////////
 ///////////////////////////////////////////////////////////
 
-workflow {
-    data = Channel.fromFilePairs("${params.readsFiles}", checkIfExists:true)
+workflow getorganelle_wf {
+    take:
+    data
+
+    main:
     getorganelle_index(params.getorganelle_index)
     getorganelle(getorganelle_index.out, data)
     rename_headers(getorganelle.out)
-    concaten(rename_headers.out)
+    concaten(rename_headers.out.getorganelle)
     nucmer(concaten.out)
     mummer(nucmer.out)
-    select_assembly(rename_headers.out)
+}
+
+workflow fastplast_wf {
+    take:
+    subsampling
+
+    main:
+    fastplast(subsampling)
+    rename_headers(fastplast.out)
+    nucmer(rename_headers.out.fastplast)
+    mummer(nucmer.out)
+}
+
+workflow orgasm_wf {
+    take:
+    subsampling
+
+    main:
+    orgasm_index(subsampling)
+    orgasm_buildgraph(orgasm_index.out)
+    orgasm_unfold(orgasm_buildgraph.out)
+    rename_headers(orgasm_unfold.out)
+    nucmer(rename_headers.out.orgasm)
+    mummer(nucmer.out)
+}
+
+workflow test_assembler_wf {
+    take:
+    data
+
+    main:
+    getorganelle_wf(data)
+    seqtk(data)
+    fastplast_wf(seqtk.out)
+    orgasm_wf(seqtk.out)
+}
+
+workflow analysis_wf {
+    take:
+    data
+
+    main:
+    getorganelle_index(params.getorganelle_index)
+    getorganelle(getorganelle_index.out, data)
+    rename_headers(getorganelle.out)
+    concaten(rename_headers.out.getorganelle)
+    nucmer(concaten.out)
+    mummer(nucmer.out)
+    select_assembly(rename_headers.out.getorganelle)
     mafft(select_assembly.out.collectFile(name: 'multi_fasta', newLine: true))
     raxml(mafft.out)
+}
+
+///////////////////////////////////////////////////////////
+//////////////////    Main Workflow     ///////////////////
+///////////////////////////////////////////////////////////
+
+workflow {
+
+    data = Channel.fromFilePairs("${params.readsFiles}", checkIfExists:true)
+
+    if (params.workflow=="test")
+    { test_assembler_wf(data) }
+
+    else if (params.workflow=="analysis")
+    { analysis_wf(data) }
+
+    else
+    { println """
+    
+    Error : Any workflow selected
+    
+    """
+    helpMessage()
+    exit 0 }
 }
 
 workflow.onComplete{println("Workflow execution completed sucessfully!")}
