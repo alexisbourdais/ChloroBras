@@ -28,7 +28,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 - Install Nextflow, Conda and Singularity.
 
-- Download and place in the same folder **ChloroBras**, **nextflow.config** and **Tools** (environnements conda, scripts file and reference fasta).
+- Download and place in the same folder **ChloroBras.nf**, **nextflow.config** and **Tools** (environnements conda, scripts file and reference fasta).
 
 - Create a directory **Samples** with sequences to use. These should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz**. 
 
