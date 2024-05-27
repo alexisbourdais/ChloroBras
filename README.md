@@ -6,19 +6,28 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 ![screenshot](ChloroBrasPipeline.png)
 
+
+The first one (**test_assembler.nf**)  
+A sub-sampling step via **Seqtk** was added for the **Fast-Plast** and **ORGanelle ASseMbler** assemblers, as the samples from which 
+the pipeline was developed were originally intended for the study of nuclear polymorphisms, the assembly could take several days 
+because of the large number of reads present. (**GetOrganelle** is able to perform its own subsampling.)
+
+**Mode Test** 
+- Chloroplast genome assembly from paired Illumina reads by **GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler**
+- Alignment with **Nucmer** thanks a reference genome 
+- Visualization of the quality of these assemblies via a dot-plot created by **Mummer**.
+
+**Mode Analysis**
 - Chloroplast genome assembly by **GetOrganelle**
-
-- A python script (**rename_fasta_header.py**) renames the headers after the assembly according to the name of the sample and the assembly number.
-
 - Selection of the assembly with the Small Single Copy in the right direction (**GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC). The bash script (**script_selection_assembly.sh**) selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
-
 - Alignment with **Mafft**
-
 - Phylogenetic tree by **RAxML**
+
+A python script (**rename_fasta_header.py**) renames the headers (to shorten them and avoid errors) after the assembly according to the name of the sample and the assembler.
 
 ## Instruction
 
-- Install Nextflow and Conda.
+- Install Nextflow, Conda and Singularity.
 
 - Download and place in the same folder **ChloroBras**, **nextflow.config** and **Tools** (environnements conda, scripts file and reference fasta).
 
@@ -99,7 +108,7 @@ Each of the following parameters can be specified as command line options or in 
 
 - GetOrganelle: https://github.com/Kinggerm/GetOrganelle
 
-- Fast-Plast: https://github.com/mrmckain/Fast-PlastORGanelle ASseMbler: https://git.metabarcoding.org/org-asm/org-asmSeqtk: https://github.com/lh3/seqt
+- Fast-Plast: https://github.com/mrmckain/Fast-Plast
 
 - ORGanelle ASseMbler: https://git.metabarcoding.org/org-asm/org-asm
 
