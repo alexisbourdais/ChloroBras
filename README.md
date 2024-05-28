@@ -6,7 +6,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 **Test Mode**
 
-![screenshot](ChloroBras-Test.png)
+![screenshot](ChloroBras.png)
 
 - Sub-sampling step via **Seqtk** for **Fast-Plast** and **ORGanelle ASseMbler****
 - Chloroplast genome assembly by **GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler**
