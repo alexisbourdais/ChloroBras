@@ -29,6 +29,12 @@ def helpMessage() {
 
     OPTIONAL parameter
 
+    Executor
+    --executor                      Choose the executor (local or slurm). Default: local
+
+    Analysis assembler
+    --analysis_assembler [getorganelle/fastplast] Change the assembler used to the analysis workflow. Default: getorganelle
+
     Reads directory
     --readsFiles                    Path to input data, default: "${params.baseDir}/Samples/*_R{1,2}.fastq.gz"
 
@@ -234,25 +240,27 @@ process rename_headers {
 
     tag "${sampleId}"
 
+    publishDir "${results}/${sampleId}/", mode: 'copy'
+
     input:
     tuple val(sampleId), path(assembly_1), path(assembly_2), val(assembler)
     
     output:
-    tuple val(sampleId), path("${sampleId}_get_1"), path("${sampleId}_get_2"), val(assembler), emit: getorganelle, optional: true
-    tuple val(sampleId), path("${sampleId}_fast"), emit: fastplast, val(assembler), optional: true
-    tuple val(sampleId), path("${sampleId}_org"), emit: orgasm, val(assembler), optional: true
+    tuple val(sampleId), path("${sampleId}_get_1.fasta"), path("${sampleId}_get_2.fasta"), val(assembler), emit: getorganelle, optional: true
+    tuple val(sampleId), path("${sampleId}_fast.fasta"), emit: fastplast, val(assembler), optional: true
+    tuple val(sampleId), path("${sampleId}_org.fasta"), emit: orgasm, val(assembler), optional: true
     
     script:
     """
     if [ "${assembler}" = "getorganelle" ]; then
-    python ${params.rename_script} -i ${assembly_1} -n "${sampleId}_get_1" -o "${sampleId}_get_1"
-    python ${params.rename_script} -i ${assembly_2} -n "${sampleId}_get_2" -o "${sampleId}_get_2"
+    python ${params.rename_script} -i ${assembly_1} -n "${sampleId}_get_1" -o "${sampleId}_get_1.fasta"
+    python ${params.rename_script} -i ${assembly_2} -n "${sampleId}_get_2" -o "${sampleId}_get_2.fasta"
 
     elif [ "${assembler}" = "fastplast" ]; then
-    python ${params.rename_script} -i ${assembly_1} -n "${sampleId}_fast" -o "${sampleId}_fast"
+    python ${params.rename_script} -i ${assembly_1} -n "${sampleId}_fast" -o "${sampleId}_fast.fasta"
 
     elif [ "${assembler}" = "orgasm" ]; then
-    python ${params.rename_script} -i ${assembly_1} -n "${sampleId}_org" -o "${sampleId}_org"
+    python ${params.rename_script} -i ${assembly_1} -n "${sampleId}_org" -o "${sampleId}_org.fasta"
     fi
     """
 }
@@ -297,7 +305,7 @@ process mummer {
 
     tag "${sampleId}"
 
-    publishDir "${results}/Mummer/${sampleId}/", mode: 'move'
+    publishDir "${results}/${sampleId}/", mode: 'move'
 
     input:
     tuple val(sampleId), path(align_from_nucmer), val(assembler)
@@ -337,15 +345,17 @@ process select_assembly {
 
     tag "${sampleId}"
 
+    publishDir "${results}/${sampleId}/", mode: 'copy'
+
     input:
     tuple val(sampleId), path(assembly_getorganelle_1), path(assembly_getorganelle_2), val(assembler)
 
     output:
-    path("${sampleId}_graph_right")
+    path("${sampleId}_getGood.fasta")
 
     script:
     """
-    bash ${params.select_assembly_script} ${assembly_getorganelle_1} ${assembly_getorganelle_2} ${sampleId}_graph_right
+    bash ${params.select_assembly_script} ${assembly_getorganelle_1} ${assembly_getorganelle_2} ${sampleId}_getGood.fasta
     """
 }
 
@@ -355,7 +365,7 @@ process mafft {
 
     tag "Alignment"
 
-    publishDir "${results}/MAFFT", mode: 'copy'
+    publishDir "${results}/Alignment/", mode: 'copy'
 
     input:
     path(multi_fasta)
@@ -366,7 +376,7 @@ process mafft {
     script:
     """
     mafft --${params.mafft_method} ${multi_fasta} > multi_fasta_align.fasta
-    sed -i -e 's/_get_1_1//g' -e 's/_get_2_1//g' multi_fasta_align.fasta
+    sed -i -e 's/_get_1_1//g' -e 's/_get_2_1//g' -e 's/_fast//g' multi_fasta_align.fasta
     """
 }
 
@@ -374,7 +384,7 @@ process raxml {
 
     conda "${params.baseDir}/Tools/raxml_env.yml"
 
-    tag "Creation of the phylogenetic tree"
+    tag "Phylogenetic tree"
 
     publishDir "${results}/RAxML/", mode: 'move'
 
@@ -452,7 +462,7 @@ workflow test_assembler_wf {
     orgasm_wf(seqtk.out)
 }
 
-workflow analysis_wf {
+workflow analysis_get_wf {
     take:
     data
 
@@ -468,6 +478,20 @@ workflow analysis_wf {
     raxml(mafft.out)
 }
 
+workflow analysis_fast_wf {
+    take:
+    data
+
+    main:
+    seqtk(data)
+    fastplast(seqtk.out)
+    rename_headers(fastplast.out)
+    nucmer(rename_headers.out.fastplast)
+    mummer(nucmer.out)
+    mafft(rename_headers.out.fastplast.collectFile(name: 'multi_fasta', newLine: true))
+    raxml(mafft.out)
+}
+
 ///////////////////////////////////////////////////////////
 //////////////////    Main Workflow     ///////////////////
 ///////////////////////////////////////////////////////////
@@ -479,13 +503,16 @@ workflow {
     if (params.workflow=="test")
     { test_assembler_wf(data) }
 
-    else if (params.workflow=="analysis")
-    { analysis_wf(data) }
+    else if (params.workflow=="analysis" && params.analysis_assembler=="getorganelle")
+    { analysis_get_wf(data) }
+
+    else if (params.workflow=="analysis" && params.analysis_assembler=="fastplast")
+    { analysis_fast_wf(data) }
 
     else
     { println """
     
-    Error : Any workflow selected
+    Error : Any workflow selected or unknown assembler
     
     """
     helpMessage()
