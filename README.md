@@ -24,9 +24,9 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 - Alignment with **Mafft**
 - Phylogenetic tree by **RAxML**
 
-** as the samples from which the pipeline was developed were originally intended for the study of nuclear polymorphisms, the assembly could take several days because of the large number of reads present. (**GetOrganelle** is able to perform its own subsampling.)
+** samples from which the pipeline was developed were originally intended for the study of nuclear polymorphisms so the assembly could take several days because of the large number of reads present. **GetOrganelle** is able to perform its own subsampling.
 
-*** has produced the best results with our data set
+*** produced the best results with our data set
 
 **** **GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC. The bash script selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
 
