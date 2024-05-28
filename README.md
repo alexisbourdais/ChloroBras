@@ -8,7 +8,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 ![screenshot](ChloroBras-Test.png)
 
-- Sub-sampling step via **Seqtk** for **Fast-Plast** and **ORGanelle ASseMbler****
+- Sub-sampling step via **Seqtk** for **Fast-Plast** and **ORGanelle ASseMbler**<sup> 1 </sup>
 - Chloroplast genome assembly by **GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler**
 - Renaming headers (**rename_fasta_header.py**) according to the name of the sample and the assembler to shorten them and avoid errors
 - Alignment with **Nucmer** thanks a reference genome 
@@ -18,17 +18,18 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 ![screenshot](ChloroBras-Analysis.png)
 
-- Chloroplast genome assembly by **GetOrganelle***** or **Fastplast**.
+- Chloroplast genome assembly by **GetOrganelle**<sup> 2 </sup> (you can choose **Fastplast**).
 - Renaming headers (**rename_fasta_header.py**) according to the name of the sample and the assembler to shorten them and avoid errors
-- Selection of the assembly with the Small Single Copy in the right direction (**script_selection_assembly.sh**)****
+- Selection of the assembly with the Small Single Copy in the right direction (**script_selection_assembly.sh**)<sup> 3 </sup>
 - Alignment with **Mafft**
 - Phylogenetic tree by **RAxML**
 
-** samples from which the pipeline was developed were originally intended for the study of nuclear polymorphisms so the assembly could take several days because of the large number of reads present. **GetOrganelle** is able to perform its own subsampling.
 
-*** produced the best results with our data set
+> <sup> 1 </sup> samples from which the pipeline was developed were originally intended for the study of nuclear polymorphisms so the assembly could take several days because of the large number of reads present. **GetOrganelle** is able to perform its own subsampling.
 
-**** **GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC. The bash script selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
+> <sup> 2 </sup> produced the best results with our data set
+
+> <sup> 3 </sup> **GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC. The bash script selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
 
 ## Instruction
 
@@ -46,7 +47,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 - See results in Results folder !
 
-- WARNING! : Compatibility problem between latest version of Gnuplot and Mummer
+- **WARNING!** : Compatibility problem between latest version of Gnuplot and Mummer
 
     => delete the 3 “set mouse” lines in the work/conda/mummer/opt/mummer-3.23/mummerplot file created after installation of the conda environment : `sed -i '/set mouse/d' ./work/conda/mummer*/opt/mummer-3.23/mummerplot`
 
