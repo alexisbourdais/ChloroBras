@@ -62,6 +62,12 @@ Each of the following parameters can be specified as command line options or in 
 
     OPTIONAL parameter
 
+    Executor
+    --executor                      Choose the executor (local or slurm). Default: local
+
+    Analysis assembler
+    --analysis_assembler [getorganelle/fastplast] Change the assembler used to the analysis workflow. Default: getorganelle
+
     Reads directory
     --readsFiles                    Path to input data, default: "./Samples/*_R{1,2}.fastq.gz"
 
