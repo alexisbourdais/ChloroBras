@@ -4,9 +4,10 @@
 
 ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis of chloroplast genome from paired Illumina reads, developed for *Brassica* but transposable to any family of flowering plants.
 
-![screenshot](ChloroBrasPipeline.png)
-
 **Test Mode**
+
+![screenshot](ChloroBras-Test.png)
+
 - Sub-sampling step via **Seqtk** for **Fast-Plast** and **ORGanelle ASseMbler****
 - Chloroplast genome assembly by **GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler**
 - Renaming headers (**rename_fasta_header.py**) according to the name of the sample and the assembler to shorten them and avoid errors
@@ -14,6 +15,9 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 - Visualization of the quality of these assemblies via a dot-plot created by **Mummer**.
 
 **Analysis Mode**
+
+![screenshot](ChloroBras-Analysis.png)
+
 - Chloroplast genome assembly by **GetOrganelle*****
 - Renaming headers (**rename_fasta_header.py**) according to the name of the sample and the assembler to shorten them and avoid errors
 - Selection of the assembly with the Small Single Copy in the right direction (**script_selection_assembly.sh**)****
@@ -38,14 +42,13 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
     `ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
 
+- Run the pipeline : `nextflow run ChloroBras.nf --workflow [test/analysis]`
+
+- See results in Results folder !
 
 - WARNING! : Compatibility problem between latest version of Gnuplot and Mummer
 
     => delete the 3 “set mouse” lines in the work/conda/mummer/opt/mummer-3.23/mummerplot file created after installation of the conda environment : `sed -i '/set mouse/d' ./work/conda/mummer*/opt/mummer-3.23/mummerplot`
-
-- Run the pipeline : `nextflow run ChloroBras.nf --workflow [test/analysis]`
-
-- See results in Results folder !
 
 ## Parameters
 
@@ -60,10 +63,10 @@ Each of the following parameters can be specified as command line options or in 
     OPTIONAL parameter
 
     Reads directory
-    --readsFiles                    Path to input data, default: "${params.baseDir}/Samples/*_R{1,2}.fastq.gz"
+    --readsFiles                    Path to input data, default: "./Samples/*_R{1,2}.fastq.gz"
 
     Results directory
-    --resultsDir                    Path to results directory, default: "${params.baseDir}/Results/"
+    --resultsDir                    Path to results directory, default: "./Results/"
 
     GetOrganelle
     --getorganelle_index            Index of GetOrganelle, default: "embplant_pt"
@@ -79,17 +82,17 @@ Each of the following parameters can be specified as command line options or in 
     --orgasm_probes                 Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
     Rename_headers
-    --rename_script                 Path to rename_fasta_header.py, default: "${params.baseDir}/Tools/rename_fasta_header.py"
+    --rename_script                 Path to rename_fasta_header.py, default: "./Tools/rename_fasta_header.py"
 
     Nucmer
-    --nucmer_ref                    Path to Fasta reference for alignment, default: "${params.baseDir}/Tools/brassica_oleracea.fasta"
+    --nucmer_ref                    Path to Fasta reference for alignment, default: "./Tools/brassica_oleracea.fasta"
 
     Mummer
     --mummer_axe                    Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
     --mummer_format_output          Format of the plot, default: "png"
 
     Select_assembly
-    --select_assembly_script        Path to script_selection_assembly.sh, default: "${params.baseDir}/Tools/script_selection_assembly.sh"
+    --select_assembly_script        Path to script_selection_assembly.sh, default: "./Tools/script_selection_assembly.sh"
 
     Mafft
     --mafft_method                  Alignment methods, default: "auto"
