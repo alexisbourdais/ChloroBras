@@ -35,7 +35,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 - Install Nextflow, Conda and Singularity.
 
-- Download and place in the same folder **ChloroBras.nf**, **nextflow.config** and **Tools** (environnements conda, scripts file and reference fasta).
+- Download and place in the same folder **ChloroBras.nf**, **nextflow.config** and **Tools** (contains script files and reference fasta).
 
 - Create a directory **Samples** with sequences to use. These should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz**. 
 
@@ -46,10 +46,6 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 - Run the pipeline : `nextflow run ChloroBras.nf --workflow [test/analysis]`
 
 - See results in Results folder !
-
-- **WARNING!** : Compatibility problem between latest version of Gnuplot and Mummer
-
-    => delete the 3 “set mouse” lines in the work/conda/mummer/opt/mummer-3.23/mummerplot file created after installation of the conda environment : `sed -i '/set mouse/d' ./work/conda/mummer*/opt/mummer-3.23/mummerplot`
 
 ## Parameters
 
@@ -88,24 +84,24 @@ Each of the following parameters can be specified as command line options or in 
     OrgAsm
     --orgasm_probes                 Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
-    Rename_headers
-    --rename_script                 Path to rename_fasta_header.py, default: "./Tools/rename_fasta_header.py"
-
     Nucmer
     --nucmer_ref                    Path to Fasta reference for alignment, default: "./Tools/brassica_oleracea.fasta"
 
     Mummer
     --mummer_axe                    Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
     --mummer_format_output          Format of the plot, default: "png"
-
-    Select_assembly
-    --select_assembly_script        Path to script_selection_assembly.sh, default: "./Tools/script_selection_assembly.sh"
-
+    
     Mafft
     --mafft_method                  Alignment methods, default: "auto"
 
     Raxml
     --raxml_model                   Model uses by RAxML, default: "GTRGAMMAI"
+    
+    Script
+    --rename_script                 Path to rename_fasta_header.py, default: "${params.baseDir}/Tools/rename_fasta_header.py"
+    --select_assembly_script        Path to script_selection_assembly.sh, default: "${params.baseDir}/Tools/script_selection_assembly.sh"
+    --multi2one_script              Path to script convert_multiline_oneline.sh, default: "${params.baseDir}/Tools/convert_multiline_oneline.sh
+
 
 - The help message can be displayed with the command `nexftlow run ChloroBras.nf --help`
     
