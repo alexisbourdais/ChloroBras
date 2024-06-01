@@ -53,7 +53,7 @@ Each of the following parameters can be specified as command line options or in 
 
     Workflow
     --workflow [test/analysis]      test : assembles genomes with the three assemblers, allows quality assessment via dotplot
-                                    analysis : assemble genomes with getorganelle and create phylogenetic tree
+                                    analysis : assemble genomes with getorganelle or fastplast and create phylogenetic tree
 
     OPTIONAL parameter
 
