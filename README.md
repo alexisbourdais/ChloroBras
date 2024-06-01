@@ -85,7 +85,7 @@ Each of the following parameters can be specified as command line options or in 
     --orgasm_probes                 Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
     Nucmer
-    --nucmer_ref                    Path to Fasta reference for alignment, default: "./Tools/brassica_oleracea.fasta"
+    --nucmer_ref                    Path to Fasta reference for alignment, default: "./Tools/*.fasta"
 
     Mummer
     --mummer_axe                    Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
