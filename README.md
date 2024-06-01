@@ -10,7 +10,6 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 - Sub-sampling step via **Seqtk** for **Fast-Plast** and **ORGanelle ASseMbler**<sup> 1 </sup>
 - Chloroplast genome assembly by **GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler**
-- Renaming headers (**rename_fasta_header.py**) according to the name of the sample and the assembler to shorten them and avoid errors
 - Alignment with **Nucmer** thanks a reference genome 
 - Visualization of the quality of these assemblies via a dot-plot created by **Mummer**.
 
@@ -19,7 +18,6 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 ![screenshot](ChloroBras-Analysis.png)
 
 - Chloroplast genome assembly by **GetOrganelle**<sup> 2 </sup> (you can choose **Fastplast**).
-- Renaming headers (**rename_fasta_header.py**) according to the name of the sample and the assembler to shorten them and avoid errors
 - Selection of the assembly with the Small Single Copy in the right direction (**script_selection_assembly.sh**)<sup> 3 </sup>
 - Alignment with **Mafft**
 - Phylogenetic tree by **RAxML**
