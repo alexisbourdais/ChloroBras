@@ -74,7 +74,7 @@ Each of the following parameters can be specified as command line options or in 
     --getorganelle_kmer             Size of kmers, default: "21,45,65,85,105"
 
     Sqtk
-    --seqtk_nb_read                 Number of reads to keep, default: 2000000
+    --seqtk_nb_read                 Subsampling, default: 2000000
 
     FastPlast
     --fastplast_index               Index of Fast-Plast, default: "Brassicales"
