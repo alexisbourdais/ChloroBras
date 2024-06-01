@@ -54,16 +54,12 @@ def helpMessage() {
     OrgAsm
     --orgasm_probes                 Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
-    Rename_headers
-
     Nucmer
     --nucmer_ref                    Path to Fasta reference for alignment, default: "${params.baseDir}/Tools/brassica_oleracea.fasta"
 
     Mummer
     --mummer_axe                    Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
     --mummer_format_output          Format of the plot, default: "png"
-
-    Select_assembly
 
     Mafft
     --mafft_method                  Alignment methods, default: "auto"
