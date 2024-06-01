@@ -96,9 +96,9 @@ Each of the following parameters can be specified as command line options or in 
     --raxml_model                   Model uses by RAxML, default: "GTRGAMMAI"
     
     Script
-    --rename_script                 Path to rename_fasta_header.py, default: "${params.baseDir}/Tools/rename_fasta_header.py"
-    --select_assembly_script        Path to script_selection_assembly.sh, default: "${params.baseDir}/Tools/script_selection_assembly.sh"
-    --multi2one_script              Path to script convert_multiline_oneline.sh, default: "${params.baseDir}/Tools/convert_multiline_oneline.sh
+    --rename_script                 Path to rename_fasta_header.py, default: "./Tools/rename_fasta_header.py"
+    --select_assembly_script        Path to script_selection_assembly.sh, default: "./Tools/script_selection_assembly.sh"
+    --multi2one_script              Path to script convert_multiline_oneline.sh, default: "./Tools/convert_multiline_oneline.sh"
 
 
 - The help message can be displayed with the command `nexftlow run ChloroBras.nf --help`
