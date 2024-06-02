@@ -35,7 +35,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 - Download and place in the same folder **ChloroBras.nf**, **nextflow.config** and **Tools** (contains script files and reference fasta).
 
-- Create a directory **Samples** with sequences to use or select a directory with --readsFiles. Sequences must have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz**. 
+- Create a directory **Samples** with sequences to use or select a directory with --readsFiles. Sequences should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz** but you can change the format with --baseReadName et --formatReadName.
 
     It is possible to use symbolic links, which can be created with the following command:
 
@@ -64,7 +64,11 @@ Each of the following parameters can be specified as command line options or in 
     --analysis_assembler [getorganelle/fastplast] Change the assembler used to the analysis workflow. Default: getorganelle
 
     Reads directory
-    --readsFiles                    Path to input data, default: "./Samples/*_R{1,2}.fastq.gz"
+    --baseReadName                  Default: "_R{1,2}"
+    --formatReadName                Default: ".fastq.gz"
+    --readDirectory                 Default: "./Samples"
+    --readsFiles                    Default: "./Samples/*_R{1,2}.fastq.gz"
+
 
     Results directory
     --resultsDir                    Path to results directory, default: "./Results/"
