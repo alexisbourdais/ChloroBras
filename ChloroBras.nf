@@ -241,7 +241,7 @@ process orgasm_unfold {
     script:
     """
     oa unfold ${sampleId} ${sampleId} > ${sampleId}_orgasm.fasta
-    ${params.multi2one} "${sampleId}_orgasm.fasta" "${sampleId}_oneLine_org.fasta"
+    ${params.multi2one_script} "${sampleId}_orgasm.fasta" "${sampleId}_oneLine_org.fasta"
     python ${params.rename_script} -i "${sampleId}_oneLine_org.fasta" -n "${sampleId}" -o "${sampleId}_org.fasta"
     """
 }
