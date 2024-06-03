@@ -67,7 +67,7 @@ Each of the following parameters can be specified as command line options or in 
     --baseReadName                  Default: "_R{1,2}"
     --formatReadName                Default: ".fastq.gz"
     --readDirectory                 Default: "./Samples/"
-    --readsFiles                    Default: "./Samples*_R{1,2}.fastq.gz"
+    --readsFiles                    Default: "./Samples/*_R{1,2}.fastq.gz"
 
 
     Results directory
