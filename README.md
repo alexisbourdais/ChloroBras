@@ -64,11 +64,10 @@ Each of the following parameters can be specified as command line options or in 
     --analysis_assembler [getorganelle/fastplast] Change the assembler used to the analysis workflow. Default: getorganelle
 
     Reads directory
+    --readDirectory                 Default: "./Samples/"
     --baseReadName                  Default: "_R{1,2}"
     --formatReadName                Default: ".fastq.gz"
-    --readDirectory                 Default: "./Samples/"
     --readsFiles                    Default: "./Samples/*_R{1,2}.fastq.gz"
-
 
     Results directory
     --resultsDir                    Path to results directory, default: "./Results/"
