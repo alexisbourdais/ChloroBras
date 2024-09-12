@@ -206,7 +206,7 @@ process orgasm {
     oa index --estimate-length=0.9 ${sampleId} ${sample_R1} ${sample_R2}
     oa buildgraph --probes ${params.orgasmProbes} ${sampleId} ${sampleId}
     oa unfold ${sampleId} ${sampleId} > ${sampleId}_orgasm.fasta
-    ${params.multi2one} "${sampleId}_orgasm.fasta" "${sampleId}_oneLine_org.fasta"
+    bash ${params.multi2one} "${sampleId}_orgasm.fasta" "${sampleId}_oneLine_org.fasta"
     python ${params.renameHead} -i "${sampleId}_oneLine_org.fasta" -n "${sampleId}" -o "${sampleId}_org.fasta"
     """
 }
