@@ -4,7 +4,7 @@
 
 ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis of chloroplast genome from paired Illumina reads, developed for *Brassica* but transposable to any family of flowering plants.
 
-**Test Mode**
+**Assembling Mode**
 
 ![screenshot](ChloroBras-Test.png)
 
@@ -13,7 +13,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 - Alignment with **Nucmer** thanks a reference genome 
 - Visualization of the quality of these assemblies via a dot-plot created by **Mummer**.
 
-**Analysis Mode**
+**Analysing Mode**
 
 ![screenshot](ChloroBras-Analysis.png)
 
@@ -22,6 +22,10 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 - Alignment with **Mafft**
 - Phylogenetic tree by **RAxML**
 
+**fromAsm Mode**
+
+- Alignment with **Mafft** from from pre-existing assembly
+- Phylogenetic tree by **RAxML**
 
 > <sup> 1 </sup> samples from which the pipeline was developed were originally intended for the study of nuclear polymorphisms so the assembly could take several days because of the large number of reads present. **GetOrganelle** is able to perform its own subsampling.
 
@@ -29,79 +33,91 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 > <sup> 3 </sup> **GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC. The bash script selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
 
-## Instruction
+## Quick start
 
-- Install Nextflow, Conda and Singularity.
+- Install Nextflow, Conda, Docker and Singularity (see links below).
 
-- Download and place in the same folder **ChloroBras.nf**, **nextflow.config** and **Tools** (contains script files and reference fasta).
+- Download and place in the same folder **ChloroBras.nf**, **nextflow.config** and **Tools** (contains script files and reference fasta). `git clone https://github.com/alexisbourdais/ChloroBras/`
 
-- Create a directory **Samples** with sequences to use or select a directory with --readDirectory. Sequences should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz** but you can change the format with --baseReadName et --formatReadName.
+- Place Illumina paired reads to use in **Data/** or select a directory with --readDir. Sequences should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz** but you can change the format with --baseReadName et --formatReadName.
 
     It is possible to use symbolic links, which can be created with the following command:
 
     `ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
+  
+- Replace (or not) the brassica reference genome with the desired one in the **Tools** folder
 
-- Run the pipeline : `nextflow run ChloroBras.nf --workflow [test/analysis]`
+- Run the pipeline : `nextflow run ChloroBras.nf --workflow assembling`
 
-- See Results folder !
+- Check the quality of the assemblies using the graph in the **Results/Mummer** folder and keep the desired ones in the **Results/Assembly** folder. If you have pre-existing assemblies, you can add them here.
+
+- Run the pipeline : `nextflow run ChloroBras.nf --workflow fromAsm`
+
+- See phylogenetic analysis in **Results/Raxml** folder.
 
 ## Parameters
 
 Each of the following parameters can be specified as command line options or in the config file (**nextflow.config**)
+    
+    Command : nextflow run ChloroBras.nf --workflow [test/analysis/fromAsm] --option
 
     REQUIRED parameter
 
     Workflow
-    --workflow [test/analysis]      test : assembles genomes with the three assemblers, allows quality assessment via dotplot
-                                    analysis : assemble genomes with getorganelle or fastplast, align and create phylogenetic tree
-
+    --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes with the three assemblers, allows quality assessment via dotplot
+                                                    analyzing : assemble genomes with [getorganelle] or Fastplast and create phylogenetic tree
+                                                    fromAsm : mafft alignement and Raxml tree from assemblies in ./Results/Assembly/
+    
     OPTIONAL parameter
 
     Executor
-    --executor                      Choose the executor (local or slurm). Default: local
+    --executor              Choose executor (local or slurm). Default: local
 
-    Analysis assembler
-    --analysis_assembler [getorganelle/fastplast] Change the assembler used to the analysis workflow. Default: getorganelle
-
+    Assembler
+    --assembler             Choose assembler to use (getorganelle, fastplast or orgasm), default: all for assembling workflow
+                                                                                         default: getorganelle for analysing workflow
+    
     Reads directory
-    --readDirectory                 Default: "./Samples/"
-    --baseReadName                  Default: "_R{1,2}"
-    --formatReadName                Default: ".fastq.gz"
-    --readsFiles                    Default: "./Samples/*_R{1,2}.fastq.gz"
+    --readDir                Default: "./Data"
+    --baseReadName           Default: "_R{1,2}"
+    --formatReadName         Default: ".fastq.gz"
 
     Results directory
-    --resultsDir                    Path to results directory, default: "./Results/"
+    --resultsDir            Path to results directory, default: "./Results/"
+
+    Assembly directory
+    --assemblyDir           Path to assembly directory, default: ".Results/Assembly/"
+
+    Script
+    --renameHead            Path to rename_fasta_header.py, default: "./Tools/rename_fasta_header.py"
+    --selectGetAsm          Path to script_selection_assembly.sh, default: "./Tools/script_selection_assembly.sh"
+    --multi2one             Path to script convert_multiline_oneline.sh, default: "./Tools/convert_multiline_oneline.sh"
 
     GetOrganelle
-    --getorganelle_index            Index of GetOrganelle, default: "embplant_pt"
-    --getorganelle_kmer             Size of kmers, default: "21,45,65,85,105"
+    --getIndex             Index of GetOrganelle, default: "embplant_mt,embplant_pt"
+    --getKmer              Size of kmers, default: "21,45,65,85,105"
 
     Sqtk
-    --seqtk_nb_read                 Subsampling, default: 2000000
+    --seqtkSubsamp         Subsampling, default: 2000000. Set to 0 in order to disable subsampling.
 
     FastPlast
-    --fastplast_index               Index of Fast-Plast, default: "Brassicales"
+    --fastIndex            Index of Fast-Plast, default: "Brassicales"
 
     OrgAsm
-    --orgasm_probes                 Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
+    --orgasmProbes         Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
     Nucmer
-    --nucmer_ref                    Path to Fasta reference for alignment, default: "./Tools/*.fasta"
+    --nucmerRef            Path to Fasta reference for alignment, default: "./Tools/*.fasta"
 
     Mummer
-    --mummer_axe                    Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
-    --mummer_format_output          Format of the plot, default: "png"
-    
+    --mummerAxe            Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
+    --mummerFormatOut      Format of the plot, default: "png"
+
     Mafft
-    --mafft_method                  Alignment methods, default: "auto"
+    --mafftMethod          Alignment methods, default: "auto"
 
     Raxml
-    --raxml_model                   Model uses by RAxML, default: "GTRGAMMAI"
-    
-    Script
-    --rename_script                 Path to rename_fasta_header.py, default: "./Tools/rename_fasta_header.py"
-    --select_assembly_script        Path to script_selection_assembly.sh, default: "./Tools/script_selection_assembly.sh"
-    --multi2one_script              Path to script convert_multiline_oneline.sh, default: "./Tools/convert_multiline_oneline.sh"
+    --raxmlModel           Model uses by RAxML, default: "GTRGAMMAI"
 
 
 - The help message can be displayed with the command `nexftlow run ChloroBras.nf --help`
@@ -111,6 +127,8 @@ Each of the following parameters can be specified as command line options or in 
 - Nextflow: https://www.nextflow.io/docs/latest/index.html
 
 - Conda: https://conda.io/projects/conda/en/latest/user-guide/install/index.html
+
+- Docker : https://www.docker.com/
 
 - Singularity: https://docs.sylabs.io/guides/3.0/user-guide/quick_start.html
 
