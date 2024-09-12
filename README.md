@@ -24,7 +24,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 **fromAsm Mode**
 
-- Alignment with **Mafft** from from pre-existing assembly
+- Alignment with **Mafft** from pre-existing assembly
 - Phylogenetic tree by **RAxML**
 
 > <sup> 1 </sup> samples from which the pipeline was developed were originally intended for the study of nuclear polymorphisms so the assembly could take several days because of the large number of reads present. **GetOrganelle** is able to perform its own subsampling.
