@@ -17,64 +17,65 @@
 def helpMessage() {
     log.info """
 
-
-    Command : nextflow run ChloroBras.nf --workflow [test/analysis]
-
+    Command : nextflow run ChloroBras.nf --workflow [test/analysis/fromAsm]
 
     REQUIRED parameter
 
     Workflow
-    --workflow [test/analysis]      test : assembles genomes with the three assemblers, allows quality assessment via dotplot
-                                    analysis : assemble genomes with getorganelle and create phylogenetic tree
-
+    --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes with the three assemblers, allows quality assessment via dotplot
+                                                    analyzing : assemble genomes with [getorganelle] or Fastplast and create phylogenetic tree
+                                                    fromAsm : mafft alignement and Raxml tree from assemblies in ./Results/Assembly/
+    
     OPTIONAL parameter
 
     Executor
-    --executor                      Choose the executor (local or slurm). Default: local
+    --executor              Choose executor (local or slurm). Default: local
 
-    Analysis assembler
-    --analysis_assembler [getorganelle/fastplast] Change the assembler used to the analysis workflow. Default: getorganelle
-
+    Assembler
+    --assembler             Choose assembler to use (getorganelle, fastplast or orgasm), default: all for assembling workflow
+                                                                                         default: getorganelle for analysing workflow
+    
     Reads directory
-    --baseReadName                  Default: "_R{1,2}"
-    --formatReadName                Default: ".fastq.gz"
-    --readDirectory                 Default: "${params.baseDir}/Samples"
-    --readsFiles                    Default: ${params.readDirectory}/*${params.baseReadName}${params.formatReadName}"
+    --readDir                Default: "./Data"
+    --baseReadName           Default: "_R{1,2}"
+    --formatReadName         Default: ".fastq.gz"
 
     Results directory
-    --resultsDir                    Path to results directory, default: "${params.baseDir}/Results/"
+    --resultsDir            Path to results directory, default: "./Results/"
 
-    GetOrganelle
-    --getorganelle_index            Index of GetOrganelle, default: "embplant_pt"
-    --getorganelle_kmer             Size of kmers, default: "21,45,65,85,105"
-
-    Sqtk
-    --subsampling                 Subsampling, default: 2000000. Set to 0 in order to disable subsampling.
-
-    FastPlast
-    --fastplast_index               Index of Fast-Plast, default: "Brassicales"
-
-    OrgAsm
-    --orgasm_probes                 Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
-
-    Nucmer
-    --nucmer_ref                    Path to Fasta reference for alignment, default: "${params.baseDir}/Tools/*.fasta"
-
-    Mummer
-    --mummer_axe                    Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
-    --mummer_format_output          Format of the plot, default: "png"
-
-    Mafft
-    --mafft_method                  Alignment methods, default: "auto"
-
-    Raxml
-    --raxml_model                   Model uses by RAxML, default: "GTRGAMMAI"
+    Assembly directory
+    --assemblyDir           Path to assembly directory, default: ".Results/Assembly/"
 
     Script
-    --rename_script                 Path to rename_fasta_header.py, default: "${params.baseDir}/Tools/rename_fasta_header.py"
-    --select_assembly_script        Path to script_selection_assembly.sh, default: "${params.baseDir}/Tools/script_selection_assembly.sh"
-    --multi2one_script              Path to script convert_multiline_oneline.sh, default: "${params.baseDir}/Tools/convert_multiline_oneline.sh"
+    --renameHead            Path to rename_fasta_header.py, default: "./Tools/rename_fasta_header.py"
+    --selectGetAsm          Path to script_selection_assembly.sh, default: "./Tools/script_selection_assembly.sh"
+    --multi2one             Path to script convert_multiline_oneline.sh, default: "./Tools/convert_multiline_oneline.sh"
 
+    GetOrganelle
+    --getIndex             Index of GetOrganelle, default: "embplant_mt,embplant_pt"
+    --getKmer              Size of kmers, default: "21,45,65,85,105"
+
+    Sqtk
+    --seqtkSubsamp         Subsampling, default: 2000000. Set to 0 in order to disable subsampling.
+
+    FastPlast
+    --fastIndex            Index of Fast-Plast, default: "Brassicales"
+
+    OrgAsm
+    --orgasmProbes         Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
+
+    Nucmer
+    --nucmerRef            Path to Fasta reference for alignment, default: "./Tools/*.fasta"
+
+    Mummer
+    --mummerAxe            Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
+    --mummerFormatOut      Format of the plot, default: "png"
+
+    Mafft
+    --mafftMethod          Alignment methods, default: "auto"
+
+    Raxml
+    --raxmlModel           Model uses by RAxML, default: "GTRGAMMAI"
 
     Each of the previous parameters can be specified as command line options or in the config file
 
@@ -106,7 +107,7 @@ process getorganelle_index {
 
     script:
     """
-    get_organelle_config.py --add ${index}
+    get_organelle_config.py -a ${params.getIndex}
     """
 }
 
@@ -116,7 +117,7 @@ process getorganelle {
 
     tag "${sampleId}"
 
-    //publishDir "${results}/${sampleId}/GetOrganelle", mode: 'copy'
+    //publishDir "${results}/Assembly", mode: 'copy'
 
     errorStrategy 'ignore'
 
@@ -133,9 +134,9 @@ process getorganelle {
     -1 ${reads[0]} \
     -2 ${reads[1]} \
     -o ${sampleId} \
-    -k ${params.getorganelle_kmer} \
-    -F ${params.getorganelle_index} \
-    -t 1
+    -k ${params.getKmer} \
+    -F ${params.getIndex} \
+    -t ${task.cpus}
     """
 }
 
@@ -153,14 +154,14 @@ process seqtk {
 
     script:
     """
-    seqtk sample -s666 ${reads[0]} ${params.subsampling} |gzip -c - > ${sampleId}_sub1.fq.gz
-    seqtk sample -s666 ${reads[1]} ${params.subsampling} |gzip -c - > ${sampleId}_sub2.fq.gz
+    seqtk sample -s666 ${reads[0]} ${params.seqtkSubsamp} |gzip -c - > ${sampleId}_sub1.fq.gz
+    seqtk sample -s666 ${reads[1]} ${params.seqtkSubsamp} |gzip -c - > ${sampleId}_sub2.fq.gz
     """
 }
 
 process fastplast {
 
-    publishDir "${results}/${sampleId}/Fastplast", mode: 'copy'
+    publishDir "${results}/Assembly", mode: 'copy'
 
     tag "${sampleId}"
 
@@ -179,7 +180,8 @@ process fastplast {
     -1 ${sample_R1} \
     -2 ${sample_R2} \
     --name ${sampleId} \
-    --bowtie_index ${params.fastplast_index} \
+    --bowtie_index ${params.fastIndex} \
+    --threads ${task.cpus}
 
     mv "${sampleId}/Final_Assembly/${sampleId}_FULLCP.fsa" "${sampleId}_fpt.fasta"
     """
@@ -187,9 +189,7 @@ process fastplast {
 
 process orgasm {
 
-    publishDir "${results}/${sampleId}/Orgasm", mode: 'copy'
-
-    label 'orgasm'
+    publishDir "${results}/Assembly", mode: 'copy'
 
     errorStrategy 'ignore'
 
@@ -204,10 +204,10 @@ process orgasm {
     script:
     """
     oa index --estimate-length=0.9 ${sampleId} ${sample_R1} ${sample_R2}
-    oa buildgraph --probes ${params.orgasm_probes} ${sampleId} ${sampleId}
+    oa buildgraph --probes ${params.orgasmProbes} ${sampleId} ${sampleId}
     oa unfold ${sampleId} ${sampleId} > ${sampleId}_orgasm.fasta
-    ${params.multi2one_script} "${sampleId}_orgasm.fasta" "${sampleId}_oneLine_org.fasta"
-    python ${params.rename_script} -i "${sampleId}_oneLine_org.fasta" -n "${sampleId}" -o "${sampleId}_org.fasta"
+    ${params.multi2one} "${sampleId}_orgasm.fasta" "${sampleId}_oneLine_org.fasta"
+    python ${params.renameHead} -i "${sampleId}_oneLine_org.fasta" -n "${sampleId}" -o "${sampleId}_org.fasta"
     """
 }
 
@@ -215,7 +215,7 @@ process select_assembly {
 
     tag "${sampleId}"
 
-    publishDir "${results}/${sampleId}/GetOrganelle/", mode: 'copy'
+    publishDir "${results}/Assembly", mode: 'copy'
 
     input:
     tuple val(sampleId), val(assembler), path(assembly_1), path(assembly_2)
@@ -226,10 +226,10 @@ process select_assembly {
     
     script:
     """
-    python ${params.rename_script} -i ${assembly_1} -n "${sampleId}_get_1" -o "${sampleId}_get_1.fasta"
-    python ${params.rename_script} -i ${assembly_2} -n "${sampleId}_get_2" -o "${sampleId}_get_2.fasta"
+    python ${params.renameHead} -i ${assembly_1} -n "${sampleId}_get_1" -o "${sampleId}_get_1.fasta"
+    python ${params.renameHead} -i ${assembly_2} -n "${sampleId}_get_2" -o "${sampleId}_get_2.fasta"
     cat "${sampleId}_get_1.fasta" "${sampleId}_get_2.fasta" > ${sampleId}_get.fasta
-    bash ${params.select_assembly_script} "${sampleId}_get_1.fasta" "${sampleId}_get_2.fasta" "${sampleId}_getGood.fasta"
+    bash ${params.selectGetAsm} "${sampleId}_get_1.fasta" "${sampleId}_get_2.fasta" "${sampleId}_getGood.fasta"
     """
 }
 
@@ -247,7 +247,7 @@ process nucmer {
 
     script:
     """
-    nucmer -p ${sampleId} ${params.nucmer_ref} ${assembly}
+    nucmer -p ${sampleId} ${params.nucmerRef} ${assembly}
     """
 }
 
@@ -257,7 +257,7 @@ process mummer {
 
     tag "${sampleId}"
 
-    publishDir "${results}/${sampleId}/Mummer", mode: 'move'
+    publishDir "${results}/Mummer", mode: 'move'
 
     input:
     tuple val(sampleId), val(assembler), path(align_from_nucmer)
@@ -267,9 +267,9 @@ process mummer {
     script:
     """
     mummerplot \
-    -x ${params.mummer_axe} \
+    -x ${params.mummerAxe} \
     -p ${sampleId}_${assembler} \
-    -t ${params.mummer_format_output} \
+    -t ${params.mummerFormatOut} \
     ${align_from_nucmer}
     """
 }
@@ -278,20 +278,18 @@ process mafft {
 
     conda "bioconda::mafft"
 
-    tag "Alignment"
-
-    publishDir "${results}/Mafft-Alignment/", mode: 'copy'
+    publishDir "${results}/Mafft/", mode: 'copy'
 
     input:
-    path(multi_fasta)
+    path(multiFasta)
 
     output:
-    path("multi_fasta_align.fasta")
+    path("align.fasta")
 
     script:
     """
-    mafft --${params.mafft_method} ${multi_fasta} > multi_fasta_align.fasta
-    sed -i -e 's/_get_1//g' -e 's/_get_2//g' multi_fasta_align.fasta
+    mafft --${params.mafftMethod} ${multiFasta} > align.fasta
+    sed -i -e 's/_get_1//g' -e 's/_get_2//g' align.fasta
     """
 }
 
@@ -299,23 +297,21 @@ process raxml {
 
     conda "bioconda::raxml"
 
-    tag "Phylogenetic tree"
-
     publishDir "${results}/RAxML/", mode: 'move'
 
     input:
     path(multi_fasta_align)
 
     output:
-    path("RAxML_bootstrap.model_${params.raxml_model}")
+    path("RAxML_bootstrap.model_${params.raxmlModel}")
 
     script:
     """
     raxmlHPC \
     -s ${multi_fasta_align} \
-    -n model_${params.raxml_model} \
+    -n model_${params.raxmlModel} \
     -d \
-    -m ${params.raxml_model} \
+    -m ${params.raxmlModel} \
     --auto-prot=bic \
     --bootstop-perms=1000 \
     -x 12345 \
@@ -334,7 +330,7 @@ workflow getorganelle_wf {
     data
 
     main:
-    getorganelle_index(params.getorganelle_index)
+    getorganelle_index(params.getIndex)
     getorganelle(getorganelle_index.out, data)
     select_assembly(getorganelle.out)
     nucmer(select_assembly.out.nucmer)
@@ -361,7 +357,7 @@ workflow orgasm_wf {
     mummer(nucmer.out)
 }
 
-workflow test_assembler_wf {
+workflow all_assembler_wf {
     take:
     data
 
@@ -372,12 +368,12 @@ workflow test_assembler_wf {
     orgasm_wf(seqtk.out)
 }
 
-workflow analysis_get_wf {
+workflow analysing_get_wf {
     take:
     data
 
     main:
-    getorganelle_index(params.getorganelle_index)
+    getorganelle_index(params.getIndex)
     getorganelle(getorganelle_index.out, data)
     select_assembly(getorganelle.out)
     nucmer(select_assembly.out.nucmer)
@@ -386,7 +382,7 @@ workflow analysis_get_wf {
     raxml(mafft.out)
 }
 
-workflow analysis_fast_wf {
+workflow analysing_fast_wf {
     take:
     data
 
@@ -399,22 +395,48 @@ workflow analysis_fast_wf {
     raxml(mafft.out)
 }
 
+workflow fromAsm_wf {
+    take:
+    data
+
+    main:
+    mafft(data.collectFile(name: 'multi.fasta', newLine: true))
+    raxml(mafft.out)
+}
+
 ///////////////////////////////////////////////////////////
 //////////////////    Main Workflow     ///////////////////
 ///////////////////////////////////////////////////////////
 
 workflow {
 
-    data = Channel.fromFilePairs("${params.readsFiles}", checkIfExists:true)
+    if (params.workflow=="assembling" && params.assembler=="") { 
+        data = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
+        all_assembler_wf(data) }
 
-    if (params.workflow=="test")
-    { test_assembler_wf(data) }
+    else if (params.workflow=="assembling" && params.assembler=='getorganelle') { 
+        data = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
+        getorganelle_wf(data) }
 
-    else if (params.workflow=="analysis" && params.analysis_assembler=="getorganelle")
-    { analysis_get_wf(data) }
+    else if (params.workflow=="assembling" && params.assembler=='fastplast') { 
+        data = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
+        fastplast_wf(data) }
 
-    else if (params.workflow=="analysis" && params.analysis_assembler=="fastplast")
-    { analysis_fast_wf(data) }
+    else if (params.workflow=="assembling" && params.assembler=='orgasm') { 
+        data = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
+        orgasm_wf(data) }  
+
+    else if (params.workflow=="analyzing" && (params.assembler=="getorganelle" || params.assembler=="")) { 
+        data = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
+        analysing_get_wf(data) }
+
+    else if (params.workflow=="analyzing" && params.assembler=="fastplast") { 
+        data = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
+        analysing_fast_wf(data) }
+
+    else if (params.workflow=="fromAsm") { 
+        data = Channel.fromPath("${params.assemblyDir}")
+        fromAsm_wf(data) }
 
     else
     { println """
