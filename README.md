@@ -59,19 +59,19 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 Each of the following parameters can be specified as command line options or in the config file (**nextflow.config**)
     
-    Command : nextflow run ChloroBras.nf --workflow [test/analysis/fromAsm] --option
+    Command : nextflow run ChloroBras.nf --workflow [assembling/analyzing/fromAsm]
 
     REQUIRED parameter
 
-    Workflow
+    -profile [standard]/slurm,      Select profile standard (local) or slurm. Default: standard          
+             singularity/conda      Select profile singularity or conda. (FastPlast and Orgasm are only available with singularity, even in conda profile)
+                                                                         (Mummer is only available with conda, even in singularity profile)
+
     --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes with the three assemblers, allows quality assessment via dotplot
                                                     analyzing : assemble genomes with [getorganelle] or Fastplast and create phylogenetic tree
                                                     fromAsm : mafft alignement and Raxml tree from assemblies in ./Results/Assembly/
     
     OPTIONAL parameter
-
-    Executor
-    --executor              Choose executor (local or slurm). Default: local
 
     Assembler
     --assembler             Choose assembler to use (getorganelle, fastplast or orgasm), default: all for assembling workflow
@@ -79,26 +79,22 @@ Each of the following parameters can be specified as command line options or in 
     
     Reads directory
     --readDir                Default: "./Data"
-    --baseReadName           Default: "_R{1,2}"
+    --baseReadName           Default: "_R{1,2}"     ex: name_R1.fastq.gz & name_R2.fastq.gz
     --formatReadName         Default: ".fastq.gz"
 
     Results directory
     --resultsDir            Path to results directory, default: "./Results/"
 
     Assembly directory
-    --assemblyDir           Path to assembly directory, default: ".Results/Assembly/"
-
-    Script
-    --renameHead            Path to rename_fasta_header.py, default: "./Tools/rename_fasta_header.py"
-    --selectGetAsm          Path to script_selection_assembly.sh, default: "./Tools/script_selection_assembly.sh"
-    --multi2one             Path to script convert_multiline_oneline.sh, default: "./Tools/convert_multiline_oneline.sh"
+    --assemblyDir           Path to assembly directory, default: "./Results/Assembly/"
+    --formatAsm             Default: ".fasta"
 
     GetOrganelle
     --getIndex             Index of GetOrganelle, default: "embplant_mt,embplant_pt"
     --getKmer              Size of kmers, default: "21,45,65,85,105"
 
     Sqtk
-    --seqtkSubsamp         Subsampling, default: 2000000. Set to 0 in order to disable subsampling.
+    --seqtkSubsamp         Subsampling, default: 2000000.
 
     FastPlast
     --fastIndex            Index of Fast-Plast, default: "Brassicales"
@@ -106,10 +102,8 @@ Each of the following parameters can be specified as command line options or in 
     OrgAsm
     --orgasmProbes         Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
-    Nucmer
-    --nucmerRef            Path to Fasta reference for alignment, default: "./Tools/*.fasta"
-
     Mummer
+    --nucmerRef            Path to Fasta reference for alignment, default: "./Data/brassica_oleracea.fasta"
     --mummerAxe            Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
     --mummerFormatOut      Format of the plot, default: "png"
 
