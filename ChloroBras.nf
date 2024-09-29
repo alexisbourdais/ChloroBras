@@ -17,19 +17,19 @@
 def helpMessage() {
     log.info """
 
-    Command : nextflow run ChloroBras.nf --workflow [test/analysis/fromAsm]
+    Command : nextflow run ChloroBras.nf --workflow [assembling/analyzing/fromAsm]
 
     REQUIRED parameter
 
-    Workflow
+    -profile [standard]/slurm,      Select profile standard (local) or slurm. Default: standard          
+             singularity/conda      Select profile singularity or conda. (FastPlast and Orgasm are only available with singularity, even in conda profile)
+                                                                         (Mummer is only available with conda, even in singularity profile)
+
     --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes with the three assemblers, allows quality assessment via dotplot
                                                     analyzing : assemble genomes with [getorganelle] or Fastplast and create phylogenetic tree
                                                     fromAsm : mafft alignement and Raxml tree from assemblies in ./Results/Assembly/
     
     OPTIONAL parameter
-
-    Executor
-    --executor              Choose executor (local or slurm). Default: local
 
     Assembler
     --assembler             Choose assembler to use (getorganelle, fastplast or orgasm), default: all for assembling workflow
@@ -37,26 +37,22 @@ def helpMessage() {
     
     Reads directory
     --readDir                Default: "./Data"
-    --baseReadName           Default: "_R{1,2}"
+    --baseReadName           Default: "_R{1,2}"     ex: name_R1.fastq.gz & name_R2.fastq.gz
     --formatReadName         Default: ".fastq.gz"
 
     Results directory
     --resultsDir            Path to results directory, default: "./Results/"
 
     Assembly directory
-    --assemblyDir           Path to assembly directory, default: ".Results/Assembly/"
-
-    Script
-    --renameHead            Path to rename_fasta_header.py, default: "./Tools/rename_fasta_header.py"
-    --selectGetAsm          Path to script_selection_assembly.sh, default: "./Tools/script_selection_assembly.sh"
-    --multi2one             Path to script convert_multiline_oneline.sh, default: "./Tools/convert_multiline_oneline.sh"
+    --assemblyDir           Path to assembly directory, default: "./Results/Assembly/"
+    --formatAsm             Default: ".fasta"
 
     GetOrganelle
     --getIndex             Index of GetOrganelle, default: "embplant_mt,embplant_pt"
     --getKmer              Size of kmers, default: "21,45,65,85,105"
 
     Sqtk
-    --seqtkSubsamp         Subsampling, default: 2000000. Set to 0 in order to disable subsampling.
+    --seqtkSubsamp         Subsampling, default: 2000000.
 
     FastPlast
     --fastIndex            Index of Fast-Plast, default: "Brassicales"
@@ -64,10 +60,8 @@ def helpMessage() {
     OrgAsm
     --orgasmProbes         Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
-    Nucmer
-    --nucmerRef            Path to Fasta reference for alignment, default: "./Tools/*.fasta"
-
     Mummer
+    --nucmerRef            Path to Fasta reference for alignment, default: "./bin/brassica_oleracea.fasta"
     --mummerAxe            Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
     --mummerFormatOut      Format of the plot, default: "png"
 
@@ -97,7 +91,7 @@ results = file(params.resultsDir)
 
 process getorganelle_index {
 
-    conda "bioconda::getorganelle"
+    label 'getorganelle'
 
     input:
     val index
@@ -107,26 +101,28 @@ process getorganelle_index {
 
     script:
     """
-    get_organelle_config.py -a ${params.getIndex}
+    get_organelle_config.py -a ${index}
     """
 }
 
 process getorganelle {
 
-    conda "bioconda::getorganelle"
+    label 'getorganelle' 
+    label 'process_high'
 
     tag "${sampleId}"
 
-    //publishDir "${results}/Assembly", mode: 'copy'
+    errorStrategy { task.attempt <= 3 ? 'retry' : 'ignore' }
 
-    errorStrategy 'ignore'
+    publishDir "${results}/Assembly/", mode: 'copy', pattern: "*getGood.fasta"
 
     input:
     val index
     tuple val(sampleId), path(reads)
 
     output :
-    tuple val(sampleId), val("get"), path("${sampleId}/embplant_pt.K*.complete.graph1.1.path_sequence.fasta"), path("${sampleId}/embplant_pt.K*.complete.graph1.2.path_sequence.fasta")
+    path("${sampleId}_getGood.fasta"), emit: mafft
+    tuple val(sampleId), val("get"), path("${sampleId}_get.fasta"), emit: mummer
 
     script:
     """
@@ -137,12 +133,18 @@ process getorganelle {
     -k ${params.getKmer} \
     -F ${params.getIndex} \
     -t ${task.cpus}
+
+    asm1="\$(ls ${sampleId}/embplant_pt.K*.complete.graph1.1.path_sequence.fasta)"
+    asm2="\$(ls ${sampleId}/embplant_pt.K*.complete.graph1.2.path_sequence.fasta)"
+
+    rename_fasta_header.py -i "\${asm1}" -n "${sampleId}_get_1" -o "${sampleId}_get_1.fasta"
+    rename_fasta_header.py -i "\${asm2}" -n "${sampleId}_get_2" -o "${sampleId}_get_2.fasta"
+    cat "${sampleId}_get_1.fasta" "${sampleId}_get_2.fasta" > "${sampleId}_get.fasta"
+    selection_assembly.sh "${sampleId}_get_1.fasta" "${sampleId}_get_2.fasta" "${sampleId}_getGood.fasta"
     """
 }
 
 process seqtk {
-
-    conda "bioconda::fusioncatcher-seqtk"
 
     tag "${sampleId}"
     
@@ -161,17 +163,19 @@ process seqtk {
 
 process fastplast {
 
-    publishDir "${results}/Assembly", mode: 'copy'
+    label 'process_high'
+
+    publishDir "${results}/Assembly/", mode: 'copy'
 
     tag "${sampleId}"
 
-    errorStrategy 'ignore' 
+    errorStrategy { task.attempt <= 3 ? 'retry' : 'ignore' }
 
     input:
     tuple val(sampleId), path(sample_R1), path(sample_R2)
 
     output:
-    tuple val(sampleId), val("fpt"), path("${sampleId}_fpt.fasta"), emit: nucmer
+    tuple val(sampleId), val("fpt"), path("${sampleId}_fpt.fasta"), emit: mummer
     path("${sampleId}_fpt.fasta"), emit: mafft
 
     script:
@@ -189,7 +193,9 @@ process fastplast {
 
 process orgasm {
 
-    publishDir "${results}/Assembly", mode: 'copy'
+    label 'process_high'
+
+    publishDir "${results}/Assembly/", mode: 'copy'
 
     errorStrategy 'ignore'
 
@@ -206,77 +212,38 @@ process orgasm {
     oa index --estimate-length=0.9 ${sampleId} ${sample_R1} ${sample_R2}
     oa buildgraph --probes ${params.orgasmProbes} ${sampleId} ${sampleId}
     oa unfold ${sampleId} ${sampleId} > ${sampleId}_orgasm.fasta
-    bash ${params.multi2one} "${sampleId}_orgasm.fasta" "${sampleId}_oneLine_org.fasta"
-    python ${params.renameHead} -i "${sampleId}_oneLine_org.fasta" -n "${sampleId}" -o "${sampleId}_org.fasta"
-    """
-}
-
-process select_assembly {
-
-    tag "${sampleId}"
-
-    publishDir "${results}/Assembly", mode: 'copy'
-
-    input:
-    tuple val(sampleId), val(assembler), path(assembly_1), path(assembly_2)
-    
-    output:
-    path("${sampleId}_getGood.fasta"), emit: mafft
-    tuple val(sampleId), val(assembler), path("${sampleId}_get.fasta"), emit: nucmer
-    
-    script:
-    """
-    python ${params.renameHead} -i ${assembly_1} -n "${sampleId}_get_1" -o "${sampleId}_get_1.fasta"
-    python ${params.renameHead} -i ${assembly_2} -n "${sampleId}_get_2" -o "${sampleId}_get_2.fasta"
-    cat "${sampleId}_get_1.fasta" "${sampleId}_get_2.fasta" > ${sampleId}_get.fasta
-    bash ${params.selectGetAsm} "${sampleId}_get_1.fasta" "${sampleId}_get_2.fasta" "${sampleId}_getGood.fasta"
-    """
-}
-
-process nucmer {
-
-    conda "bioconda::mummer"
-
-    tag "${sampleId}"
-
-    input:
-    tuple val(sampleId), val(assembler), path(assembly)
-
-    output:
-    tuple val(sampleId), val(assembler), path("${sampleId}.delta")
-
-    script:
-    """
-    nucmer -p ${sampleId} ${params.nucmerRef} ${assembly}
+    convert_multiline_oneline.sh "${sampleId}_orgasm.fasta" "${sampleId}_oneLine_org.fasta"
+    rename_fasta_header.py -i "${sampleId}_oneLine_org.fasta" -n "${sampleId}" -o "${sampleId}_org.fasta"
     """
 }
 
 process mummer {
-
-    conda "bioconda::mummer conda-forge::gnuplot"
 
     tag "${sampleId}"
 
     publishDir "${results}/Mummer", mode: 'move'
 
     input:
-    tuple val(sampleId), val(assembler), path(align_from_nucmer)
+    tuple val(sampleId), val(assembler), path(assembly)
+
     output:
     path("${sampleId}_${assembler}.png")
 
     script:
     """
+    nucmer -p ${sampleId} ${params.nucmerRef} ${assembly}
+
     mummerplot \
     -x ${params.mummerAxe} \
     -p ${sampleId}_${assembler} \
     -t ${params.mummerFormatOut} \
-    ${align_from_nucmer}
+    "${sampleId}.delta"
     """
 }
 
 process mafft {
 
-    conda "bioconda::mafft"
+    label 'process_high'
 
     publishDir "${results}/Mafft/", mode: 'copy'
 
@@ -295,7 +262,7 @@ process mafft {
 
 process raxml {
 
-    conda "bioconda::raxml"
+    label 'process_high'
 
     publishDir "${results}/RAxML/", mode: 'move'
 
@@ -322,7 +289,7 @@ process raxml {
 }
 
 ///////////////////////////////////////////////////////////
-//////////////////////     Workflow     ///////////////////
+//////////////////////     Sub-Workflow     ///////////////
 ///////////////////////////////////////////////////////////
 
 workflow getorganelle_wf {
@@ -332,9 +299,7 @@ workflow getorganelle_wf {
     main:
     getorganelle_index(params.getIndex)
     getorganelle(getorganelle_index.out, data)
-    select_assembly(getorganelle.out)
-    nucmer(select_assembly.out.nucmer)
-    mummer(nucmer.out)
+    mummer(getorganelle.out.mummer)
 }
 
 workflow fastplast_wf {
@@ -343,8 +308,7 @@ workflow fastplast_wf {
 
     main:
     fastplast(subsampling)
-    nucmer(fastplast.out.nucmer)
-    mummer(nucmer.out)
+    mummer(fastplast.out.mummer)
 }
 
 workflow orgasm_wf {
@@ -353,8 +317,7 @@ workflow orgasm_wf {
 
     main:
     orgasm(subsampling)
-    nucmer(orgasm.out)
-    mummer(nucmer.out)
+    mummer(orgasm.out)
 }
 
 workflow all_assembler_wf {
@@ -375,9 +338,7 @@ workflow analysing_get_wf {
     main:
     getorganelle_index(params.getIndex)
     getorganelle(getorganelle_index.out, data)
-    select_assembly(getorganelle.out)
-    nucmer(select_assembly.out.nucmer)
-    mummer(nucmer.out)
+    mummer(getorganelle.out.mummer)
     mafft(select_assembly.out.mafft.collectFile(name: 'multi_fasta', newLine: true))
     raxml(mafft.out)
 }
@@ -389,8 +350,7 @@ workflow analysing_fast_wf {
     main:
     seqtk(data)
     fastplast(seqtk.out)
-    nucmer(fastplast.out.nucmer)
-    mummer(nucmer.out)
+    mummer(fastplast.out.mummer)
     mafft(fastplast.out.mafft.collectFile(name: 'multi_fasta', newLine: true))
     raxml(mafft.out)
 }
@@ -404,9 +364,9 @@ workflow fromAsm_wf {
     raxml(mafft.out)
 }
 
-///////////////////////////////////////////////////////////
-//////////////////    Main Workflow     ///////////////////
-///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+//////////////////     Workflow     ///////////////////
+///////////////////////////////////////////////////////
 
 workflow {
 
@@ -435,7 +395,7 @@ workflow {
         analysing_fast_wf(data) }
 
     else if (params.workflow=="fromAsm") { 
-        data = Channel.fromPath("${params.assemblyDir}")
+        data = Channel.fromPath("${params.asmFiles}")
         fromAsm_wf(data) }
 
     else
