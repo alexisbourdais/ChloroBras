@@ -37,15 +37,15 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 - Install Nextflow, Conda, Docker and Singularity (see links below).
 
-- Download and place in the same folder **ChloroBras.nf**, **nextflow.config** and **Tools** (contains script files and reference fasta). `git clone https://github.com/alexisbourdais/ChloroBras/`
+- Download and place in the same folder **ChloroBras.nf**, **nextflow.config**, **Data** (contains reference fasta) and **bin** (contains script files). `git clone https://github.com/alexisbourdais/ChloroBras/`
 
-- Create a **Data/** folder and place Illumina paired reads to use in it or select a directory with --readDir. Sequences should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz** but you can change the format with --baseReadName et --formatReadName.
+- Add to **Data/** folder Illumina paired reads to use or select a directory with `--readDir`. Sequences should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz** but you can change the format with `--baseReadName` et `--formatReadName`.
 
     It is possible to use symbolic links, which can be created with the following command:
 
     `ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
   
-- Replace (or not) the brassica reference genome with the desired one in the **Tools** folder
+- Replace (or not) the brassica reference genome with the desired one in the **Data** folder and use `--nucmerRef`
 
 - Run the pipeline : `nextflow run ChloroBras.nf --workflow assembling`
 
