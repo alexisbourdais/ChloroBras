@@ -61,7 +61,7 @@ def helpMessage() {
     --orgasmProbes         Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
     Mummer
-    --nucmerRef            Path to Fasta reference for alignment, default: "./bin/brassica_oleracea.fasta"
+    --nucmerRef            Path to Fasta reference for alignment, default: "./Data/brassica_oleracea.fasta"
     --mummerAxe            Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
     --mummerFormatOut      Format of the plot, default: "png"
 
@@ -339,7 +339,7 @@ workflow analysing_get_wf {
     getorganelle_index(params.getIndex)
     getorganelle(getorganelle_index.out, data)
     mummer(getorganelle.out.mummer)
-    mafft(select_assembly.out.mafft.collectFile(name: 'multi_fasta', newLine: true))
+    mafft(getorganelle.out.mafft.collectFile(name: 'multi_fasta', newLine: true))
     raxml(mafft.out)
 }
 
