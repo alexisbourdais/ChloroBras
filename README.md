@@ -67,7 +67,7 @@ Each of the following parameters can be specified as command line options or in 
              singularity/conda      Select profile singularity or conda. (FastPlast and Orgasm are only available with singularity, even in conda profile)
                                                                          (Mummer is only available with conda, even in singularity profile)
 
-     --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes (all, [getorganelle], fastplast or orgasm) and allows quality assessment via dotplot
+     --workflow [assembling/analyzing/fromAsm]      assembling : assembles genomes (all, [getorganelle], fastplast or orgasm) and allows quality assessment via dotplot
                                                     analyzing : assemble genomes ([getorganelle] or Fastplast) and create phylogenetic tree
                                                     fromAsm : mafft alignement and Raxml tree from assemblies in ./Results/Assembly/
 
