@@ -67,16 +67,18 @@ Each of the following parameters can be specified as command line options or in 
              singularity/conda      Select profile singularity or conda. (FastPlast and Orgasm are only available with singularity, even in conda profile)
                                                                          (Mummer is only available with conda, even in singularity profile)
 
-    --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes with the three assemblers, allows quality assessment via dotplot
+    --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes and allows quality assessment via dotplot
                                                     analyzing : assemble genomes with [getorganelle] or Fastplast and create phylogenetic tree
                                                     fromAsm : mafft alignement and Raxml tree from assemblies in ./Results/Assembly/
     
     OPTIONAL parameter
 
     Assembler
-    --assembler             Choose assembler to use (getorganelle, fastplast or orgasm), default: all for assembling workflow
-                                                                                         default: getorganelle for analysing workflow
-    
+    --assembler             Choose assembler to use (all, [getorganelle], fastplast or orgasm) 'Orgasm' and 'all' are not available for analysing workflow
+
+    Trimming
+    --trimming              Add trimming step with 'fastp' or 'trimgalore'. Default: none
+
     Reads directory
     --readDir                Default: "./Data"
     --baseReadName           Default: "_R{1,2}"     ex: name_R1.fastq.gz & name_R2.fastq.gz
