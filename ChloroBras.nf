@@ -25,15 +25,14 @@ def helpMessage() {
              singularity/conda      Select profile singularity or conda. (FastPlast and Orgasm are only available with singularity, even in conda profile)
                                                                          (Mummer is only available with conda, even in singularity profile)
 
-    --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes with the three assemblers, allows quality assessment via dotplot
+    --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes and allows quality assessment via dotplot
                                                     analyzing : assemble genomes with [getorganelle] or Fastplast and create phylogenetic tree
                                                     fromAsm : mafft alignement and Raxml tree from assemblies in ./Results/Assembly/
     
     OPTIONAL parameter
 
     Assembler
-    --assembler             Choose assembler to use (getorganelle, fastplast or orgasm), default: all for assembling workflow
-                                                                                         default: getorganelle for analysing workflow
+    --assembler             Choose assembler to use (all, [getorganelle], fastplast or orgasm) 'Orgasm' and 'all' are not available for analysing workflow
     
     Reads directory
     --readDir                Default: "./Data"
@@ -88,6 +87,106 @@ if (params.help){
 ///////////////////////////////////////////////////////////
 
 results = file(params.resultsDir)
+
+//////////////////////  QC  //////////////////////
+
+process fastqc {
+
+    label 'process_low'
+
+    input:
+    path(read)
+
+    output :
+    path("${read.simpleName}_fastqc.zip")
+
+    script:
+    """
+    fastqc -t ${task.cpus} --memory ${task.memory} ${read} -o "./"
+    """
+}
+
+process multiqc {
+
+    label 'process_low'
+
+    publishDir "${results}/", mode: 'move'
+
+    input:
+    path(allFastq)
+
+    output :
+    path("multiqc_report.html")
+
+    script:
+    """
+    multiqc ${allFastq}
+    """
+}
+
+//////////////////////  TRIMMING  //////////////////////
+
+process trimgalore {
+
+    label 'process_low'
+
+    tag "${sampleId}"
+
+    publishDir "${results}/Trimming_trimgalore/", mode: 'copy'
+
+    input:
+    tuple val(sampleId), path(reads)
+
+    output :
+    tuple val("${sampleId}"), path("${sampleId}_R{1,2}_trimgalore.fq.gz"), emit: paired_reads
+    tuple path("${sampleId}_R1_trimgalore_fastqc.zip"), path("${sampleId}_R2_trimgalore_fastqc.zip"), emit: qc
+    tuple path("${sampleId}_R1_trimgalore_report.txt"), path("${sampleId}_R2_trimgalore_report.txt")
+
+    script:
+    """
+    trim_galore \
+    --paired ${reads[0]} ${reads[1]} \
+    --basename ${sampleId} \
+    --gzip \
+    -o "Trimming_trimgalore" \
+    --cores "${task.cpus}" \
+    --fastqc
+    #--illumina --stranded_illumina
+
+    mv "Trimming_trimgalore/${sampleId}_val_1.fq.gz" "${sampleId}_R1_trimgalore.fq.gz"
+    mv "Trimming_trimgalore/${sampleId}_val_2.fq.gz" "${sampleId}_R2_trimgalore.fq.gz"
+    mv "Trimming_trimgalore/${sampleId}_val_1_fastqc.zip" "${sampleId}_R1_trimgalore_fastqc.zip"
+    mv "Trimming_trimgalore/${sampleId}_val_2_fastqc.zip" "${sampleId}_R2_trimgalore_fastqc.zip"
+    mv "Trimming_trimgalore/${reads[0]}_trimming_report.txt" "${sampleId}_R1_trimgalore_report.txt"
+    mv "Trimming_trimgalore/${reads[1]}_trimming_report.txt" "${sampleId}_R2_trimgalore_report.txt"
+    """
+}
+
+process fastp {
+
+    label 'process_low'
+
+    tag "${sampleId}"
+
+    publishDir "${results}/Trimming_fastp/", mode: 'copy'
+
+    input:
+    tuple val(sampleId), path(reads)
+
+    output:
+    tuple val("${sampleId}"), path("${sampleId}_R{1,2}_trimfastp.fq.gz"), emit: paired_reads
+    path("report_fastp.html")
+
+    script:
+    """
+    fastp -i ${reads[0]} -I ${reads[1]} \
+    -o ${sampleId}_R1_trimfastp.fq.gz -O ${sampleId}_R2_trimfastp.fq.gz \
+    --thread ${task.cpus} \
+    --html report_fastp.html
+    """
+}
+
+//////////////////////  ASSEMBLER  //////////////////////
 
 process getorganelle_index {
 
@@ -217,6 +316,8 @@ process orgasm {
     """
 }
 
+//////////////////////  DOT PLOT  //////////////////////
+
 process mummer {
 
     tag "${sampleId}"
@@ -241,6 +342,8 @@ process mummer {
     """
 }
 
+//////////////////////  ALIGNER  //////////////////////
+
 process mafft {
 
     label 'process_high'
@@ -259,6 +362,8 @@ process mafft {
     sed -i -e 's/_get_1//g' -e 's/_get_2//g' align.fasta
     """
 }
+
+//////////////////////  PHYLOGENY  //////////////////////
 
 process raxml {
 
@@ -292,75 +397,58 @@ process raxml {
 //////////////////////     Sub-Workflow     ///////////////
 ///////////////////////////////////////////////////////////
 
+workflow quality_wf {
+    take:
+    reads
+
+    main:
+    fastqc(reads)
+    multiqc(fastqc.out.collect())
+}
+
 workflow getorganelle_wf {
     take:
-    data
+    paired_reads
 
     main:
     getorganelle_index(params.getIndex)
-    getorganelle(getorganelle_index.out, data)
+    getorganelle(getorganelle_index.out, paired_reads)
     mummer(getorganelle.out.mummer)
+
+    emit:
+    assembly = getorganelle.out.mafft
 }
 
 workflow fastplast_wf {
     take:
-    subsampling
+    sub_paired_reads
 
     main:
-    fastplast(subsampling)
+    fastplast(sub_paired_reads)
     mummer(fastplast.out.mummer)
+
+    emit:
+    assembly = fastplast.out.mafft
 }
 
 workflow orgasm_wf {
     take:
-    subsampling
+    sub_paired_reads
 
     main:
-    orgasm(subsampling)
+    orgasm(sub_paired_reads)
     mummer(orgasm.out)
+
+    emit:
+    assembly = orgasm.out
 }
 
-workflow all_assembler_wf {
+workflow analysing_wf {
     take:
-    data
+    assembly
 
     main:
-    getorganelle_wf(data)
-    seqtk(data)
-    fastplast_wf(seqtk.out)
-    orgasm_wf(seqtk.out)
-}
-
-workflow analysing_get_wf {
-    take:
-    data
-
-    main:
-    getorganelle_index(params.getIndex)
-    getorganelle(getorganelle_index.out, data)
-    mummer(getorganelle.out.mummer)
-    mafft(getorganelle.out.mafft.collectFile(name: 'multi_fasta', newLine: true))
-    raxml(mafft.out)
-}
-
-workflow analysing_fast_wf {
-    take:
-    data
-
-    main:
-    seqtk(data)
-    fastplast(seqtk.out)
-    mummer(fastplast.out.mummer)
-    mafft(fastplast.out.mafft.collectFile(name: 'multi_fasta', newLine: true))
-    raxml(mafft.out)
-}
-
-workflow fromAsm_wf {
-    take:
-    data
-
-    main:
-    mafft(data.collectFile(name: 'multi.fasta', newLine: true))
+    mafft(assembly.collectFile(name: 'multi_fasta', newLine: true))
     raxml(mafft.out)
 }
 
@@ -368,44 +456,139 @@ workflow fromAsm_wf {
 //////////////////     Workflow     ///////////////////
 ///////////////////////////////////////////////////////
 
+
 workflow {
 
-    if (params.workflow=="assembling" && params.assembler=="") { 
-        data = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
-        all_assembler_wf(data) }
+    if (params.workflow=="assembling" || params.workflow=="analysing") {
 
-    else if (params.workflow=="assembling" && params.assembler=='getorganelle') { 
-        data = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
-        getorganelle_wf(data) }
+        paired_reads = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
+        reads = Channel.fromPath("${params.readFiles}")
 
-    else if (params.workflow=="assembling" && params.assembler=='fastplast') { 
-        data = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
-        fastplast_wf(data) }
+        quality_wf(reads)
 
-    else if (params.workflow=="assembling" && params.assembler=='orgasm') { 
-        data = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
-        orgasm_wf(data) }  
+        // GetOrganelle
+        if (params.assembler=='getorganelle' || params.assembler=="") {
 
-    else if (params.workflow=="analyzing" && (params.assembler=="getorganelle" || params.assembler=="")) { 
-        data = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
-        analysing_get_wf(data) }
+            // Trimming Fastp
+            if (params.trimming=="fastp") {
+                fastp(paired_reads)
+                getorganelle_wf(fastp.out.paired_reads)
+            }
 
-    else if (params.workflow=="analyzing" && params.assembler=="fastplast") { 
-        data = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
-        analysing_fast_wf(data) }
+            // Trimming Trimgalore
+            else if (params.trimming=="trimgalore") {
+                trimgalore(paired_reads)
+                getorganelle_wf(trimgalore.out.paired_reads)
+            }
+
+            // Without trimming
+            else {
+                getorganelle_wf(paired_reads) 
+            }
+
+            if (params.workflow=="analysing") {
+            analysing_wf(getorganelle_wf.out.assembly)
+            }
+        }
+
+        // FastPlast
+        else if (params.assembler=='fastplast') {
+
+            // Trimming Fastp
+            if (params.trimming=="fastp") {
+                fastp(paired_reads)
+                seqtk(fastp.out.paired_reads)
+                fastplast_wf(seqtk.out)
+            }
+
+            // Trimming Trimgalore
+            else if (params.trimming=="trimgalore") {
+                trimgalore(paired_reads)
+                seqtk(trimgalore.out.paired_reads)
+                fastplast_wf(seqtk.out)
+            }
+
+            // Without trimming
+            else {
+                seqtk(paired_reads)
+                fastplast_wf(seqtk.out)
+            }
+
+            if (params.workflow=="analysing") {
+            analysing_wf(fastplast_wf.out.assembly)
+            }
+        }
+
+        // Orgasm
+        else if (params.assembler=='orgasm') {
+
+            // Trimming Fastp
+            if (params.trimming=="fastp") {
+                fastp(paired_reads)
+                seqtk(fastp.out.paired_reads)
+                orgasm_wf(seqtk.out)
+            }
+
+            // Trimming Trimgalore
+            else if (params.trimming=="trimgalore") {
+                trimgalore(paired_reads)
+                seqtk(trimgalore.out.paired_reads)
+                orgasm_wf(seqtk.out)
+            }
+
+            // Without trimming
+            else {
+                seqtk(paired_reads)
+                orgasm_wf(seqtk.out)
+            }
+        }
+
+        // All
+        else if (params.assembler=='all') {
+
+            // Trimming Fastp
+            if (params.trimming=="fastp") {
+                fastp(paired_reads)
+                getorganelle_wf(fastp.out.paired_reads)
+                seqtk(fastp.out.paired_reads)
+                fastplast_wf(seqtk.out)
+                orgasm_wf(seqtk.out)
+            }
+
+            // Trimming Trimgalore
+            else if (params.trimming=="trimgalore") {
+                trimgalore(paired_reads)
+                getorganelle_wf(trimgalore.out.paired_reads)
+                seqtk(trimgalore.out.paired_reads)
+                fastplast_wf(seqtk.out)
+                orgasm_wf(seqtk.out)
+            }
+
+            // Without trimming
+            else {
+                getorganelle_wf(paired_reads)
+                seqtk(paired_reads)
+                fastplast_wf(seqtk.out)
+                orgasm_wf(seqtk.out)
+            }
+        } 
+    }
 
     else if (params.workflow=="fromAsm") { 
-        data = Channel.fromPath("${params.asmFiles}")
-        fromAsm_wf(data) }
+        assemblies = Channel.fromPath(${params.asmFiles})
+        analysing_wf(assemblies) 
+    }
 
-    else
-    { println """
+    else { 
+        println """
     
-    Error : Any workflow selected or unknown assembler
+        Error : Any workflow selected or unknown assembler
     
-    """
+        """
     helpMessage()
-    exit 0 }
+    exit 0 
+    }
+
 }
 
-workflow.onComplete{println("Workflow execution completed sucessfully!")}
+workflow.onComplete{println("Workflow execution completed sucessfully ! or not ...")}
