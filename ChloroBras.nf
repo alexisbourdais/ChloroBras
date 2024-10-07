@@ -25,14 +25,14 @@ def helpMessage() {
              singularity/conda      Select profile singularity or conda. (FastPlast and Orgasm are only available with singularity, even in conda profile)
                                                                          (Mummer is only available with conda, even in singularity profile)
 
-    --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes and allows quality assessment via dotplot
-                                                    analyzing : assemble genomes with [getorganelle] or Fastplast and create phylogenetic tree
+    --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes, does annotation, and allows quality assessment via dotplot
+                                                    analyzing : like 'assembling' + alignement + phylogenetic tree
                                                     fromAsm : mafft alignement and Raxml tree from assemblies in ./Results/Assembly/
     
     OPTIONAL parameter
 
     Assembler
-    --assembler             Choose assembler to use (all, [getorganelle], fastplast or orgasm) 'Orgasm' and 'all' are not available for analysing workflow
+    --assembler             Choose assembler to use (all, [getorganelle], fastplast or orgasm) 'Orgasm' and 'all' are only available for assembling workflow
     
     Reads directory
     --readDir                Default: "./Data"
@@ -342,6 +342,26 @@ process mummer {
     """
 }
 
+//////////////////////  ANNOTATION  //////////////////////
+
+process mfannot {
+
+    label 'process_medium'
+
+    publishDir "${results}/Annotation/", mode: 'copy'
+
+    input:
+    tuple val(sampleId), val(assembler), path(assembly)
+
+    output:
+    path("")
+
+    script:
+    """
+    mfannot -g 11 -o ${sampleId}_${assembler}_mfannot ${assembly}
+    """
+}
+
 //////////////////////  ALIGNER  //////////////////////
 
 process mafft {
@@ -414,6 +434,7 @@ workflow getorganelle_wf {
     getorganelle_index(params.getIndex)
     getorganelle(getorganelle_index.out, paired_reads)
     mummer(getorganelle.out.mummer)
+    mfannot(getorganelle.out.mummer)
 
     emit:
     assembly = getorganelle.out.mafft
@@ -426,6 +447,7 @@ workflow fastplast_wf {
     main:
     fastplast(sub_paired_reads)
     mummer(fastplast.out.mummer)
+    mfannot(fastplast.out.mummer)
 
     emit:
     assembly = fastplast.out.mafft
@@ -438,6 +460,7 @@ workflow orgasm_wf {
     main:
     orgasm(sub_paired_reads)
     mummer(orgasm.out)
+    mfannot(orgasm.out.mummer)
 
     emit:
     assembly = orgasm.out
