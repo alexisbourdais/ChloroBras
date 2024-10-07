@@ -22,7 +22,7 @@ def helpMessage() {
     REQUIRED parameter
 
     -profile [standard]/slurm,      Select profile standard (local) or slurm. Default: standard          
-             singularity/conda      Select profile singularity or conda. (FastPlast and Orgasm are only available with singularity, even in conda profile)
+             singularity/conda      Select profile singularity or conda. (FastPlast, Orgasm  and mfannot are only available with singularity, even in conda profile)
                                                                          (Mummer is only available with conda, even in singularity profile)
 
     --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes, does annotation, and allows quality assessment via dotplot
@@ -33,7 +33,10 @@ def helpMessage() {
 
     Assembler
     --assembler             Choose assembler to use (all, [getorganelle], fastplast or orgasm) 'Orgasm' and 'all' are only available for assembling workflow
-    
+
+    Trimming
+    --trimming              Add trimming step with 'fastp' or 'trimgalore'. Default: none
+
     Reads directory
     --readDir                Default: "./Data"
     --baseReadName           Default: "_R{1,2}"     ex: name_R1.fastq.gz & name_R2.fastq.gz
