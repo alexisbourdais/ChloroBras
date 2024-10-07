@@ -8,10 +8,12 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 ![screenshot](ChloroBras-Test.png)
 
+- Trimming with **fastp** or **trimgalore** (optional)
 - Sub-sampling step via **Seqtk** for **Fast-Plast** and **ORGanelle ASseMbler**<sup> 1 </sup>
-- Chloroplast genome assembly by **GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler**
+- Chloroplast genome assembly by **GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler**, or **all**
 - Alignment with **Nucmer** thanks a reference genome 
 - Visualization of the quality of these assemblies via a dot-plot created by **Mummer**.
+- Annotation with **mfannot**.
 
 **Analysing Mode**
 
@@ -128,6 +130,14 @@ Each of the following parameters can be specified as command line options or in 
 
 - Singularity: https://docs.sylabs.io/guides/3.0/user-guide/quick_start.html
 
+- FastQC : https://github.com/s-andrews/FastQC
+
+- MultiQC : https://github.com/MultiQC/MultiQC
+  
+- Fastp : https://github.com/OpenGene/fastp
+
+- Trim Galore : https://github.com/FelixKrueger/TrimGalore
+
 - GetOrganelle: https://github.com/Kinggerm/GetOrganelle
 
 - Fast-Plast: https://github.com/mrmckain/Fast-Plast
@@ -142,13 +152,17 @@ Each of the following parameters can be specified as command line options or in 
 
 - RAxML: https://cme.h-its.org/exelixis/web/software/raxml/
 
-## References
+## Citation
     
 P. Di Tommaso, et al. Nextflow enables reproducible computational workflows. Nature Biotechnology 35, 316–319 (2017) doi:10.1038/nbt.3820
 
 Freudenthal, Jan A., Simon Pfaff, Niklas Terhoeven, Arthur Korte, Markus J. Ankenbrand, et Frank Förster. « A Systematic Comparison of Chloroplast Genome Assembly Tools ». Genome Biology 21, n o 1 (décembre 2020): 254. https://doi.org/10.1186/s13059-020-02153-6.
 
 Jin, Jian-Jun, Wen-Bin Yu, Jun-Bo Yang, Yu Song, Claude W. dePamphilis, Ting-Shuang Yi, et De-Zhu Li.« GetOrganelle: A Fast and Versatile Toolkit for Accurate de Novo Assembly of Organelle Genomes ». GenomeBiology 21, n o 1 (décembre 2020): 241. https://doi.org/10.1186/s13059-020-02154-5.
+
+MultiQC: Summarize analysis results for multiple tools and samples in a single report. Philip Ewels, Måns Magnusson, Sverker Lundin and Max Käller. Bioinformatics (2016). doi: 10.1093/bioinformatics/btw354. PMID: 27312411
+
+Shifu Chen. 2023. Ultrafast one-pass FASTQ data preprocessing, quality control, and deduplication using fastp. iMeta 2: e107. https://doi.org/10.1002/imt2.107
 
 Katoh, K. « MAFFT: a novel method for rapid multiple sequence alignment based on fast Fourier transform ». Nucleic Acids Research 30, n o 14 (15 juillet 2002): 3059-66. https://doi.org/10.1093/nar/gkf436.
 
