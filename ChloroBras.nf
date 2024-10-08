@@ -73,6 +73,9 @@ def helpMessage() {
     Raxml
     --raxmlModel           Model uses by RAxML, default: "GTRGAMMAI"
 
+    IQtree
+    --iqtreeModel          Model uses by IQtree, default: "GTR+I+G"
+
     Each of the previous parameters can be specified as command line options or in the config file
 
     """.stripIndent()
@@ -416,6 +419,34 @@ process raxml {
     """
 }
 
+process iqtree {
+
+    label 'process_high'
+
+    publishDir "${results}/Iqtree/", mode: 'move'
+
+    input:
+    path(multi_fasta_align)
+
+    output:
+    path("${params.iqtreePrefix}.treefile")
+    path("${params.iqtreePrefix}.iqtree")
+    path("${params.iqtreePrefix}.mldist")
+    path("${params.iqtreePrefix}.log")
+
+    script:
+    """
+    iqtree \
+    -s ${multi_fasta_align} \
+    -pre "iqtree_${params.iqtreeModel}" \
+    -m ${params.iqtreeModel} \
+    -T ${task.cpus} \
+    --mem ${task.memory}
+    
+    #-o ${params.outgroup}
+    """
+}
+
 ///////////////////////////////////////////////////////////
 //////////////////////     Sub-Workflow     ///////////////
 ///////////////////////////////////////////////////////////
@@ -475,7 +506,14 @@ workflow analysing_wf {
 
     main:
     mafft(assembly.collectFile(name: 'multi_fasta', newLine: true))
-    raxml(mafft.out)
+
+    if (params.phyloTool=="raxml") {
+        raxml(mafft.out)
+    }
+
+    if (params.phyloTool=="iqtree") {
+        iqtree(mafft.out)
+    }
 }
 
 ///////////////////////////////////////////////////////
