@@ -463,7 +463,7 @@ workflow orgasm_wf {
     main:
     orgasm(sub_paired_reads)
     mummer(orgasm.out)
-    mfannot(orgasm.out.mummer)
+    mfannot(orgasm.out)
 
     emit:
     assembly = orgasm.out
