@@ -313,7 +313,8 @@ process orgasm {
     tuple val(sampleId), path(sample_R1), path(sample_R2)
 
     output:
-    tuple val(sampleId), val("org"), path("${sampleId}_org.fasta")
+    tuple val(sampleId), val("org"), path("${sampleId}_org.fasta"), emit: mummer
+    path("${sampleId}_org.fasta"), emit: mafft
 
     script:
     """
@@ -325,11 +326,33 @@ process orgasm {
     """
 }
 
-//////////////////////  DOT PLOT  //////////////////////
+//////////////////////  QUALITY  //////////////////////
+
+process quast {
+
+    label 'process_low'
+
+    publishDir "${results}/Quast", mode: 'move'
+
+    input:
+    path(assembly)
+
+    output:
+    path("${assembly.baseName}_report.tsv")
+
+    script:
+    """
+    filename=\$(basename -- "${assembly}")
+    filename="\${filename%.*}"
+
+    quast -o \${filename} -t ${task.cpus} ${assembly}
+    mv "\${filename}/report.tsv" "\${filename}_report.tsv"
+    """
+}
 
 process mummer {
 
-    tag "${sampleId}"
+    label 'process_low'
 
     publishDir "${results}/Mummer", mode: 'move'
 
@@ -471,6 +494,7 @@ workflow getorganelle_wf {
     getorganelle_index(params.getIndex)
     getorganelle(getorganelle_index.out, paired_reads)
     mummer(getorganelle.out.mummer)
+    quast(getorganelle.out.mafft)
     mfannot(getorganelle.out.mummer)
 
     emit:
@@ -484,6 +508,7 @@ workflow fastplast_wf {
     main:
     fastplast(sub_paired_reads)
     mummer(fastplast.out.mummer)
+    quast(fastplast.out.mafft)
     mfannot(fastplast.out.mummer)
 
     emit:
@@ -496,8 +521,9 @@ workflow orgasm_wf {
 
     main:
     orgasm(sub_paired_reads)
-    mummer(orgasm.out)
-    mfannot(orgasm.out)
+    mummer(orgasm.out.mummer)
+    quast(orgasm.out.mafft)
+    mfannot(orgasm.out.mummer)
 
     emit:
     assembly = orgasm.out
