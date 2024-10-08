@@ -105,7 +105,7 @@ process fastqc {
 
     script:
     """
-    fastqc -t ${task.cpus} --memory ${task.memory} ${read} -o "./"
+    fastqc -t ${task.cpus} ${read} -o "./"
     """
 }
 
