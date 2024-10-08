@@ -37,6 +37,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 **fromAsm Mode**
 
+![screenshot](Images/ChloroBras-fromAsm_wf.png)
 
 - Alignment with **Mafft** from pre-existing assembly
 - Phylogenetic tree by **RAxML** or **IQtree**
