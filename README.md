@@ -27,7 +27,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 - Alignment thanks a reference genome and visualization via a dot-plot by **Mummer**.
 - Annotation with **mfannot**.
 - Alignment with **Mafft**
-- Phylogenetic tree by **RAxML**
+- Phylogenetic tree by **RAxML** or **IQtree**
 
 > <sup> 2 </sup> produced the best results with our data set, following by Fastplast.
 
@@ -40,7 +40,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 ![screenshot](Images/ChloroBras-fromAsm_wf.png)
 
 - Alignment with **Mafft** from pre-existing assembly
-- Phylogenetic tree by **RAxML**
+- Phylogenetic tree by **RAxML** or **IQtree**
 
 ## Quick start
 
@@ -117,13 +117,18 @@ Each of the following parameters can be specified as command line options or in 
     --nucmerRef            Path to Fasta reference for alignment, default: "./Data/brassica_oleracea.fasta"
     --mummerAxe            Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
     --mummerFormatOut      Format of the plot, default: "png"
-
+    
     Mafft
     --mafftMethod          Alignment methods, default: "auto"
+
+    Phylogeny
+    --phyloTool            Choose phylogenetic tool between ['raxml'] or 'iqtree'
 
     Raxml
     --raxmlModel           Model uses by RAxML, default: "GTRGAMMAI"
 
+    IQtree
+    --iqtreeModel          Model uses by IQtree, default: "GTR+I+G"
 
 - The help message can be displayed with the command `nexftlow run ChloroBras.nf --help`
     
