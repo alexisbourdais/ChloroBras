@@ -70,6 +70,9 @@ def helpMessage() {
     Mafft
     --mafftMethod          Alignment methods, default: "auto"
 
+    Phylogeny
+    --phyloTool            Choose phylogenetic tool between ['raxml'] or 'iqtree'
+
     Raxml
     --raxmlModel           Model uses by RAxML, default: "GTRGAMMAI"
 
