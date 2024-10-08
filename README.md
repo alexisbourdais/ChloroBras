@@ -62,7 +62,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 - Run the pipeline : `nextflow run ChloroBras.nf --workflow fromAsm`
 
-- See phylogenetic analysis in **Results/Raxml** folder.
+- See phylogenetic analysis in **Results/Raxml_IQtree** folder.
 
 ## Parameters
 
