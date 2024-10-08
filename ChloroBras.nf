@@ -27,7 +27,7 @@ def helpMessage() {
 
     --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes, does annotation, and allows quality assessment via dotplot
                                                     analyzing : like 'assembling' + alignement + phylogenetic tree
-                                                    fromAsm : mafft alignement and Raxml tree from assemblies in ./Results/Assembly/
+                                                    fromAsm : mafft alignement and phylogenetic tree from assemblies in ./Results/Assembly/
     
     OPTIONAL parameter
 
