@@ -14,16 +14,23 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 - Alignment thanks a reference genome and visualization via a dot-plot by **Mummer**.
 - Annotation with **mfannot**.
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 **Analysing Mode**
 
 ![screenshot](Images/ChloroBras-Analysing_wf.png)
 
-- Chloroplast genome assembly by **GetOrganelle**<sup> 2 </sup> or **Fastplast**.
-- Selection of the assembly with the Small Single Copy in the right direction (**script_selection_assembly.sh**)<sup> 3 </sup>
+- Trimming with **fastp** or **trimgalore** (optional)
+- Chloroplast genome assembly by **GetOrganelle**<sup> 2 </sup> <sup> 3 </sup> or **Fastplast**.
+- Alignment thanks a reference genome and visualization via a dot-plot by **Mummer**.
+- Annotation with **mfannot**.
 - Alignment with **Mafft**
 - Phylogenetic tree by **RAxML**
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 **fromAsm Mode**
+
+![screenshot](Images/ChloroBras-fromAsm_wf.png)
 
 - Alignment with **Mafft** from pre-existing assembly
 - Phylogenetic tree by **RAxML**
