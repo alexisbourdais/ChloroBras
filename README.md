@@ -142,27 +142,33 @@ Each of the following parameters can be specified as command line options or in 
 
 - Singularity: https://docs.sylabs.io/guides/3.0/user-guide/quick_start.html
 
-- FastQC : https://github.com/s-andrews/FastQC
-
-- MultiQC : https://github.com/MultiQC/MultiQC
   
 - Fastp : https://github.com/OpenGene/fastp
 
-- Trim Galore : https://github.com/FelixKrueger/TrimGalore
+- Fast-Plast: https://github.com/mrmckain/Fast-Plast
+
+- FastQC : https://github.com/s-andrews/FastQC
 
 - GetOrganelle: https://github.com/Kinggerm/GetOrganelle
 
-- Fast-Plast: https://github.com/mrmckain/Fast-Plast
-
-- ORGanelle ASseMbler: https://git.metabarcoding.org/org-asm/org-asm
-
-- Seqtk: https://github.com/lh3/seqt
+- IQtree : http://www.iqtree.org/doc/
+  
+- MAFFT: https://mafft.cbrc.jp/alignment/software/
+  
+- MultiQC : https://github.com/MultiQC/MultiQC
 
 - MUMmer/NUCMER: https://mummer4.github.io/index.html
 
-- MAFFT: https://mafft.cbrc.jp/alignment/software/
+- ORGanelle ASseMbler: https://git.metabarcoding.org/org-asm/org-asm
+
+- Quast : https://github.com/ablab/quast
 
 - RAxML: https://cme.h-its.org/exelixis/web/software/raxml/
+
+- Seqtk: https://github.com/lh3/seqt
+
+- Trim Galore : https://github.com/FelixKrueger/TrimGalore
+
 
 ## Citation
     
@@ -183,6 +189,10 @@ Marçais, Guillaume, Arthur L. Delcher, Adam M. Phillippy, Rachel Coston, Steven
 Stamatakis, Alexandros. « RAxML Version 8: A Tool for Phylogenetic Analysis and Post-Analysis of Large Phylogenies ». Bioinformatics 30, n o 9 (1 mai 2014): 1312-13. https://doi.org/10.1093/bioinformatics/btu033.
 
 Kurtzer, Gregory M., Vanessa Sochat, et Michael W. Bauer. « Singularity: Scientific Containers for Mobility of Compute ». Édité par Attila Gursoy. PLOS ONE 12, n o 5 (11 mai 2017): e0177459. https://doi.org/10.1371/journal.pone.0177459.
+
+Alla Mikheenko, Andrey Prjibelski, Vladislav Saveliev, Dmitry Antipov, Alexey Gurevich, Versatile genome assembly evaluation with QUAST-LG, Bioinformatics (2018) 34 (13): i142-i150. doi: 10.1093/bioinformatics/bty266 First published online: June 27, 2018 
+
+B.Q. Minh, H.A. Schmidt, O. Chernomor, D. Schrempf, M.D. Woodhams, A. von Haeseler, R. Lanfear (2020) IQ-TREE 2: New models and efficient methods for phylogenetic inference in the genomic era. Mol. Biol. Evol., 37:1530-1534. https://doi.org/10.1093/molbev/msaa015
 
 Fast-Plast: McKain et Wilson, 2017
 
