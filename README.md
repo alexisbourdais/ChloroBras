@@ -6,7 +6,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 **Assembling Mode**
 
-![screenshot](ChloroBras-Test.png)
+![screenshot](Images/ChloroBras-Assembling_wf.png)
 
 - Trimming with **fastp** or **trimgalore** (optional)
 - Sub-sampling step via **Seqtk** for **Fast-Plast** and **ORGanelle ASseMbler**<sup> 1 </sup>
