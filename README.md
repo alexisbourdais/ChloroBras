@@ -117,7 +117,7 @@ Each of the following parameters can be specified as command line options or in 
     --fastIndex            Index of Fast-Plast, default: "Brassicales"
 
     OrgAsm
-    --orgasmProbes         Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
+    --orgasmProbes         Index of ORGanelle ASseMbler, default: "protChloroArabidopsis"
 
     Mummer
     --nucmerRef            Path to Fasta reference for alignment, default: "./Data/brassica_oleracea.fasta"
