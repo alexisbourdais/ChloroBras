@@ -22,20 +22,17 @@ def helpMessage() {
     REQUIRED parameter
 
     -profile [standard]/slurm,      Select profile standard (local) or slurm. Default: standard          
-             singularity/conda      Select profile singularity or conda. (FastPlast, Orgasm  and mfannot are only available with singularity, even in conda profile)
+             singularity/conda      Select profile singularity or conda. (FastPlast, Orgasm, mfannot and organnot are only available with singularity, even in conda profile)
                                                                          (Mummer is only available with conda, even in singularity profile)
 
-    --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes, does annotation, and allows quality assessment via dotplot
+    --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes, does annotation, and allows quality assessment with quast and dotplot
                                                     analyzing : like 'assembling' + alignement + phylogenetic tree
-                                                    fromAsm : mafft alignement and phylogenetic tree from assemblies in ./Results/Assembly/
-    
-    OPTIONAL parameter
+                                                    fromAsm : mafft alignement and phylogenetic tree from assemblies
 
-    Assembler
-    --assembler             Choose assembler to use (all, [getorganelle], fastplast or orgasm) 'Orgasm' and 'all' are only available for assembling workflow
+    Singularity
+    --singularity           Mounted directory, default: "-B /scratch:/scratch -B /home:/home -B /local:/local -B /db:/db -B /groups:/groups"
 
-    Trimming
-    --trimming              Add trimming step with 'fastp' or 'trimgalore'. Default: none
+    OPTIONAL parameter              
 
     Reads directory
     --readDir                Default: "./Data"
@@ -49,12 +46,21 @@ def helpMessage() {
     --assemblyDir           Path to assembly directory, default: "./Results/Assembly/"
     --formatAsm             Default: ".fasta"
 
+    Assembler
+    --assembler             Choose assembler to use (all, [getorganelle], fastplast or orgasm) 'Orgasm' and 'all' are only available for assembling workflow
+
+    Trimming
+    --trimming              Add trimming step with 'fastp' or 'trimgalore'. Default: none
+
+    Annotation
+    --annotation            Choose annotator to use (['all'], 'mfannot', 'organnot')             
+
     GetOrganelle
     --getIndex             Index of GetOrganelle, default: "embplant_mt,embplant_pt"
     --getKmer              Size of kmers, default: "21,45,65,85,105"
 
     Sqtk
-    --seqtkSubsamp         Subsampling, default: 2000000.
+    --seqtkSubsamp         Subsampling, default: 2000000. Set to 0 to deactivate (assembly can be time-consuming)
 
     FastPlast
     --fastIndex            Index of Fast-Plast, default: "Brassicales"
@@ -71,15 +77,21 @@ def helpMessage() {
     --mafftMethod          Alignment methods, default: "auto"
 
     Phylogeny
-    --phyloTool            Choose phylogenetic tool between ['raxml'] or 'iqtree'
+    --phylogeny            Choose phylogenetic tool (['raxml'], 'iqtree' , 'raxmlng' or 'all')
 
     Raxml
     --raxmlModel           Model uses by RAxML, default: "GTRGAMMAI"
 
     IQtree
     --iqtreeModel          Model uses by IQtree, default: "GTR+I+G"
+    --iqtreeOption         Use to add option to iqtree: "--option argument"
 
-    Each of the previous parameters can be specified as command line options or in the config file
+    Raxml-ng
+    --raxmlngModel         Model uses by RAxML-NG, default: "GTR+G+I"
+    --raxmlngBootstrap     Bootstrap number, default: 200
+    --raxmlngOption        Use to add option to Raxml-ng: "--option argument"
+
+    Each of the previous parameters can be specified as command line options, in launch file or in the config file
 
     """.stripIndent()
 }
@@ -260,7 +272,7 @@ process seqtk {
     tuple val(sampleId), path(reads)
 
     output:
-    tuple val(sampleId), path("${sampleId}_sub1.fq.gz"), path("${sampleId}_sub2.fq.gz")
+    tuple val(sampleId), path("${sampleId}_sub{1,2}.fq.gz")
 
     script:
     """
@@ -280,7 +292,7 @@ process fastplast {
     errorStrategy { task.attempt <= 3 ? 'retry' : 'ignore' }
 
     input:
-    tuple val(sampleId), path(sample_R1), path(sample_R2)
+    tuple val(sampleId), path(reads)
 
     output:
     tuple val(sampleId), val("fpt"), path("${sampleId}_fpt.fasta"), emit: mummer
@@ -289,8 +301,8 @@ process fastplast {
     script:
     """
     fast-plast.pl \
-    -1 ${sample_R1} \
-    -2 ${sample_R2} \
+    -1 ${reads[0]} \
+    -2 ${reads[1]} \
     --name ${sampleId} \
     --bowtie_index ${params.fastIndex} \
     --threads ${task.cpus}
@@ -310,7 +322,7 @@ process orgasm {
     tag "${sampleId}"
 
     input:
-    tuple val(sampleId), path(sample_R1), path(sample_R2)
+    tuple val(sampleId), path(reads)
 
     output:
     tuple val(sampleId), val("org"), path("${sampleId}_org.fasta"), emit: mummer
@@ -318,7 +330,7 @@ process orgasm {
 
     script:
     """
-    oa index --estimate-length=0.9 ${sampleId} ${sample_R1} ${sample_R2}
+    oa index --estimate-length=0.9 ${sampleId} ${reads[0]} ${reads[1]}
     oa buildgraph --probes ${params.orgasmProbes} ${sampleId} ${sampleId}
     oa unfold ${sampleId} ${sampleId} > ${sampleId}_orgasm.fasta
     convert_multiline_oneline.sh "${sampleId}_orgasm.fasta" "${sampleId}_oneLine_org.fasta"
@@ -332,7 +344,7 @@ process quast {
 
     label 'process_low'
 
-    publishDir "${results}/Quast", mode: 'move'
+    publishDir "${results}/Quast", mode: 'copy'
 
     input:
     path(assembly)
@@ -354,7 +366,7 @@ process mummer {
 
     label 'process_low'
 
-    publishDir "${results}/Mummer", mode: 'move'
+    publishDir "${results}/Mummer", mode: 'copy'
 
     input:
     tuple val(sampleId), val(assembler), path(assembly)
@@ -386,11 +398,30 @@ process mfannot {
     tuple val(sampleId), val(assembler), path(assembly)
 
     output:
-    path("")
+    path("${sampleId}_${assembler}_mfannot.txt")
 
     script:
     """
-    mfannot -g 11 -o ${sampleId}_${assembler}_mfannot ${assembly}
+    mfannot -g 11 -o ${sampleId}_${assembler}_mfannot.txt ${assembly}
+    """
+}
+
+process organnot {
+
+    label 'process_medium'
+
+    publishDir "${results}/Annotation/", mode: 'copy'
+
+    input:
+    tuple val(sampleId), val(assembler), path(assembly)
+
+    output:
+    path("${sampleId}_${assembler}_organnot.txt")
+
+    script:
+    """
+    organnot -c ${assembly}
+    mv ${sampleId}_${assembler}.annot.circular ${sampleId}_${assembler}_organnot.txt
     """
 }
 
@@ -421,7 +452,7 @@ process raxml {
 
     label 'process_high'
 
-    publishDir "${results}/RAxML/", mode: 'move'
+    publishDir "${results}/RAxML/", mode: 'copy'
 
     input:
     path(multi_fasta_align)
@@ -449,7 +480,7 @@ process iqtree {
 
     label 'process_high'
 
-    publishDir "${results}/Iqtree/", mode: 'move'
+    publishDir "${results}/Iqtree/", mode: 'copy'
 
     input:
     path(multi_fasta_align)
@@ -461,16 +492,67 @@ process iqtree {
     path("${params.iqtreePrefix}.log")
 
     script:
+
+    if (params.iqtreeOption=="") {
+    """
+    iqtree \
+    -s ${multi_fasta_align} \
+    -pre "iqtree_${params.iqtreeModel}" \
+    -m ${params.iqtreeModel} \
+    -T ${task.cpus}
+    """
+    }
+
+    else {
     """
     iqtree \
     -s ${multi_fasta_align} \
     -pre "iqtree_${params.iqtreeModel}" \
     -m ${params.iqtreeModel} \
     -T ${task.cpus} \
-    --mem ${task.memory}
-    
-    #-o ${params.outgroup}
+    ${params.iqtreeOption}
     """
+    }
+}
+
+process raxmlng {
+
+    label 'process_high'
+
+    publishDir "${results}/RAxML-NG/", mode: 'copy'
+
+    input:
+    path(multi_fasta_align)
+
+    output:
+    /////////////////////////////////////////////////////////////////////TO ADD
+
+    script:
+
+    if (params.raxmlngOption=="") {
+    """
+    raxml-ng \
+    --all \
+    --bs-trees ${params.raxmlngBootstrap} \
+    --msa ${multi_fasta_align} \
+    --model ${params.raxmlngModel} \
+    --prefix "raxmlng_${params.raxmlngModel}" \
+    --threads ${task.cpus}
+    """
+    }
+
+    else {
+    """
+    raxml-ng \
+    --all \
+    --bs-trees ${params.raxmlngBootstrap} \
+    --msa ${multi_fasta_align} \
+    --model ${params.raxmlngModel} \
+    --prefix "raxmlng_${params.raxmlngModel}" \
+    --threads ${task.cpus} \
+    ${params.raxmlngOption==""}
+    """
+    }
 }
 
 ///////////////////////////////////////////////////////////
@@ -495,7 +577,19 @@ workflow getorganelle_wf {
     getorganelle(getorganelle_index.out, paired_reads)
     mummer(getorganelle.out.mummer)
     quast(getorganelle.out.mafft)
-    mfannot(getorganelle.out.mummer)
+
+    if (params.annotation=="mfannot") {
+        mfannot(getorganelle.out.mummer)
+    }
+    
+    if (params.annotation=="organnot") {
+        organnot(getorganelle.out.mummer)
+    }
+    
+    if (params.annotation=="all") {
+        mfannot(getorganelle.out.mummer)
+        organnot(getorganelle.out.mummer)
+    }
 
     emit:
     assembly = getorganelle.out.mafft
@@ -509,7 +603,19 @@ workflow fastplast_wf {
     fastplast(sub_paired_reads)
     mummer(fastplast.out.mummer)
     quast(fastplast.out.mafft)
-    mfannot(fastplast.out.mummer)
+
+    if (params.annotation=="mfannot") {
+        mfannot(fastplast.out.mummer)
+    }
+    
+    if (params.annotation=="organnot") {
+        organnot(fastplast.out.mummer)
+    }
+    
+    if (params.annotation=="all") {
+        mfannot(fastplast.out.mummer)
+        organnot(fastplast.out.mummer)
+    }
 
     emit:
     assembly = fastplast.out.mafft
@@ -523,10 +629,22 @@ workflow orgasm_wf {
     orgasm(sub_paired_reads)
     mummer(orgasm.out.mummer)
     quast(orgasm.out.mafft)
-    mfannot(orgasm.out.mummer)
+
+    if (params.annotation=="mfannot") {
+        mfannot(orgasm.out.mummer)
+    }
+
+    if (params.annotation=="organnot") {
+        organnot(orgasm.out.mummer)
+    }
+    
+    if (params.annotation=="all") {
+        mfannot(orgasm.out.mummer)
+        organnot(orgasm.out.mummer)
+    }
 
     emit:
-    assembly = orgasm.out
+    assembly = orgasm.out.mafft
 }
 
 workflow analysing_wf {
@@ -536,11 +654,20 @@ workflow analysing_wf {
     main:
     mafft(assembly.collectFile(name: 'multi_fasta', newLine: true))
 
-    if (params.phyloTool=="raxml") {
+    if (params.phylogeny=="raxml") {
         raxml(mafft.out)
     }
 
-    if (params.phyloTool=="iqtree") {
+    if (params.phylogeny=="iqtree") {
+        iqtree(mafft.out)
+    }
+
+    if (params.phylogeny=="raxmlng") {
+        raxmlng(mafft.out)
+    }
+    if (params.phylogeny=="all") {
+        raxml(mafft.out)
+        raxmlng(mafft.out)
         iqtree(mafft.out)
     }
 }
@@ -590,21 +717,48 @@ workflow {
             // Trimming Fastp
             if (params.trimming=="fastp") {
                 fastp(paired_reads)
-                seqtk(fastp.out.paired_reads)
-                fastplast_wf(seqtk.out)
+
+                // Without subsampling
+                if (params.seqtkSubsamp==0) {
+                    fastplast_wf(fastp.out.paired_reads)
+                }
+
+                // With subsampling
+                else {
+                    seqtk(fastp.out.paired_reads)
+                    fastplast_wf(seqtk.out)
+                }
             }
 
             // Trimming Trimgalore
             else if (params.trimming=="trimgalore") {
                 trimgalore(paired_reads)
-                seqtk(trimgalore.out.paired_reads)
-                fastplast_wf(seqtk.out)
+
+                // Without subsampling
+                if (params.seqtkSubsamp==0) {
+                    fastplast_wf(trimgalore.out.paired_reads)
+                }
+
+                // With subsampling
+                else {
+                    seqtk(trimgalore.out.paired_reads)
+                    fastplast_wf(seqtk.out)
+                }
             }
 
             // Without trimming
             else {
-                seqtk(paired_reads)
-                fastplast_wf(seqtk.out)
+
+                // Without subsampling
+                if (params.seqtkSubsamp==0) {
+                    fastplast_wf(paired_reads)
+                }
+
+                // With subsampling
+                else {
+                    seqtk(paired_reads)
+                    fastplast_wf(seqtk.out)
+                }
             }
 
             if (params.workflow=="analysing") {
@@ -618,21 +772,47 @@ workflow {
             // Trimming Fastp
             if (params.trimming=="fastp") {
                 fastp(paired_reads)
-                seqtk(fastp.out.paired_reads)
-                orgasm_wf(seqtk.out)
+
+                // Without subsampling
+                if (params.seqtkSubsamp==0) {
+                    orgasm_wf(fastp.out.paired_reads)
+                }
+
+                // With subsampling
+                else {
+                    seqtk(fastp.out.paired_reads)
+                    orgasm_wf(seqtk.out)
+                }
             }
 
             // Trimming Trimgalore
             else if (params.trimming=="trimgalore") {
                 trimgalore(paired_reads)
-                seqtk(trimgalore.out.paired_reads)
-                orgasm_wf(seqtk.out)
+
+                // Without subsampling
+                if (params.seqtkSubsamp==0) {
+                    orgasm_wf(trimgalore.out.paired_reads)
+                }
+
+                // With subsampling
+                else {
+                    seqtk(trimgalore.out.paired_reads)
+                    orgasm_wf(seqtk.out)
+                }
             }
 
             // Without trimming
             else {
-                seqtk(paired_reads)
-                orgasm_wf(seqtk.out)
+                // Without subsampling
+                if (params.seqtkSubsamp==0) {
+                    orgasm_wf(paired_reads)
+                }
+
+                // With subsampling
+                else {
+                    seqtk(paired_reads)
+                    orgasm_wf(seqtk.out)
+                }
             }
         }
 
@@ -643,26 +823,56 @@ workflow {
             if (params.trimming=="fastp") {
                 fastp(paired_reads)
                 getorganelle_wf(fastp.out.paired_reads)
-                seqtk(fastp.out.paired_reads)
-                fastplast_wf(seqtk.out)
-                orgasm_wf(seqtk.out)
+
+                // Without subsampling
+                if (params.seqtkSubsamp==0) {
+                    fastplast_wf(fastp.out.paired_reads)
+                    orgasm_wf(fastp.out.paired_reads)
+                }
+
+                // With subsampling
+                else {
+                    seqtk(fastp.out.paired_reads)
+                    fastplast_wf(seqtk.out)
+                    orgasm_wf(seqtk.out)
+                }
             }
 
             // Trimming Trimgalore
             else if (params.trimming=="trimgalore") {
                 trimgalore(paired_reads)
                 getorganelle_wf(trimgalore.out.paired_reads)
-                seqtk(trimgalore.out.paired_reads)
-                fastplast_wf(seqtk.out)
-                orgasm_wf(seqtk.out)
+
+                // Without subsampling
+                if (params.seqtkSubsamp==0) {
+                    fastplast_wf(trimgalore.out.paired_reads)
+                    orgasm_wf(trimgalore.out.paired_reads)
+                }
+
+                // With subsampling
+                else {
+                    seqtk(trimgalore.out.paired_reads)
+                    fastplast_wf(seqtk.out)
+                    orgasm_wf(seqtk.out)
+                }
             }
 
             // Without trimming
             else {
                 getorganelle_wf(paired_reads)
-                seqtk(paired_reads)
-                fastplast_wf(seqtk.out)
-                orgasm_wf(seqtk.out)
+
+                // Without subsampling
+                if (params.seqtkSubsamp==0) {
+                    fastplast_wf(paired_reads)
+                    orgasm_wf(paired_reads)
+                }
+
+                // With subsampling
+                else {
+                    seqtk(paired_reads)
+                    fastplast_wf(seqtk.out)
+                    orgasm_wf(seqtk.out)
+                }
             }
         } 
     }
