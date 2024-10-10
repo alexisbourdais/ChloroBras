@@ -9,10 +9,10 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 ![screenshot](Images/ChloroBras-Assembling_wf.png)
 
 - Trimming with **fastp** or **trimgalore** (optional)
-- Sub-sampling step via **Seqtk** for **Fast-Plast** and **ORGanelle ASseMbler**<sup> 1 </sup>
-- Chloroplast genome assembly by **GetOrganelle**, **Fast-Plast**, **ORGanelle ASseMbler**, or **all**
+- Sub-sampling step (optional) via **Seqtk** for **Fast-Plast** and **ORGanelle ASseMbler**<sup> 1 </sup>.
+- Chloroplast genome assembly by **GetOrganelle** or/and **Fast-Plast** or/and **ORGanelle ASseMbler**. 
 - Alignment thanks a reference genome and visualization via a dot-plot by **Mummer**.
-- Annotation with **mfannot**.
+- Annotation with **mfannot** or/and **organnot**.
 
 > <sup> 1 </sup> samples from which the pipeline was developed were originally intended for the study of nuclear polymorphisms so the assembly could take several days because of the large number of reads present. **GetOrganelle** is able to perform its own subsampling.
 
@@ -25,9 +25,9 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 - Trimming with **fastp** or **trimgalore** (optional)
 - Chloroplast genome assembly by **GetOrganelle**<sup> 2 </sup> <sup> 3 </sup> or **Fastplast**.
 - Alignment thanks a reference genome and visualization via a dot-plot by **Mummer**.
-- Annotation with **mfannot**.
+- Annotation with **mfannot** or/and **organnot**.
 - Alignment with **Mafft**
-- Phylogenetic tree by **RAxML** or **IQtree**
+- Phylogenetic tree by **RAxML** or/and **IQtree** or/and **RAxML-NG**.
 
 > <sup> 2 </sup> produced the best results with our data set, following by Fastplast.
 
@@ -40,7 +40,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 ![screenshot](Images/ChloroBras-fromAsm_wf.png)
 
 - Alignment with **Mafft** from pre-existing assembly
-- Phylogenetic tree by **RAxML** or **IQtree**
+- Phylogenetic tree by **RAxML** or/and **IQtree** or/and **RAxML-NG**.
 
 ## Quick start
 
@@ -54,7 +54,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
     `ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
   
-- Replace (or not) the brassica reference genome with the desired one in the **Data** folder and use `--nucmerRef`
+- Replace (or not) the brassica reference genome uses for dot plot with the desired one `--nucmerRef`
 
 - Run the pipeline : `nextflow run ChloroBras.nf --workflow assembling`
 
@@ -62,7 +62,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 - Run the pipeline : `nextflow run ChloroBras.nf --workflow fromAsm`
 
-- See phylogenetic analysis in **Results/Raxml_IQtree** folder.
+- See phylogenetic analysis in **Results/Raxml/IQtree/RaxmlNG** folder.
 
 ## Parameters
 
@@ -73,20 +73,17 @@ Each of the following parameters can be specified as command line options or in 
     REQUIRED parameter
 
     -profile [standard]/slurm,      Select profile standard (local) or slurm. Default: standard          
-             singularity/conda      Select profile singularity or conda. (FastPlast and Orgasm are only available with singularity, even in conda profile)
+             singularity/conda      Select profile singularity or conda. (FastPlast, Orgasm, mfannot and organnot are only available with singularity, even in conda profile)
                                                                          (Mummer is only available with conda, even in singularity profile)
 
-    --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes, does annotation, and allows quality assessment via dotplot
+    --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes, does annotation, and allows quality assessment with quast and dotplot
                                                     analyzing : like 'assembling' + alignement + phylogenetic tree
-                                                    fromAsm : mafft alignement and phylogenetic tree from assemblies in ./Results/Assembly/
+                                                    fromAsm : mafft alignement and phylogenetic tree from assemblies
 
-    OPTIONAL parameter
+    Singularity
+    --singularity           Mounted directory, default: "-B /scratch:/scratch -B /home:/home -B /local:/local -B /db:/db -B /groups:/groups"
 
-    Assembler
-    --assembler             Choose assembler to use (all, [getorganelle], fastplast or orgasm) 'Orgasm' and 'all' are only available for assembling workflow
-
-    Trimming
-    --trimming              Add trimming step with 'fastp' or 'trimgalore'. Default: none
+    OPTIONAL parameter              
 
     Reads directory
     --readDir                Default: "./Data"
@@ -100,12 +97,21 @@ Each of the following parameters can be specified as command line options or in 
     --assemblyDir           Path to assembly directory, default: "./Results/Assembly/"
     --formatAsm             Default: ".fasta"
 
+    Assembler
+    --assembler             Choose assembler to use (all, [getorganelle], fastplast or orgasm) 'Orgasm' and 'all' are only available for assembling workflow
+
+    Trimming
+    --trimming              Add trimming step with 'fastp' or 'trimgalore'. Default: none
+
+    Annotation
+    --annotation            Choose annotator to use (['all'], 'mfannot', 'organnot')             
+
     GetOrganelle
     --getIndex             Index of GetOrganelle, default: "embplant_mt,embplant_pt"
     --getKmer              Size of kmers, default: "21,45,65,85,105"
 
     Sqtk
-    --seqtkSubsamp         Subsampling, default: 2000000.
+    --seqtkSubsamp         Subsampling, default: 2000000. Set to 0 to deactivate (assembly can be time-consuming)
 
     FastPlast
     --fastIndex            Index of Fast-Plast, default: "Brassicales"
@@ -117,18 +123,24 @@ Each of the following parameters can be specified as command line options or in 
     --nucmerRef            Path to Fasta reference for alignment, default: "./Data/brassica_oleracea.fasta"
     --mummerAxe            Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
     --mummerFormatOut      Format of the plot, default: "png"
-    
+
     Mafft
     --mafftMethod          Alignment methods, default: "auto"
 
     Phylogeny
-    --phyloTool            Choose phylogenetic tool between ['raxml'] or 'iqtree'
+    --phylogeny            Choose phylogenetic tool (['raxml'], 'iqtree' , 'raxmlng' or 'all')
 
     Raxml
     --raxmlModel           Model uses by RAxML, default: "GTRGAMMAI"
 
     IQtree
     --iqtreeModel          Model uses by IQtree, default: "GTR+I+G"
+    --iqtreeOption         Use to add option to iqtree: "--option argument"
+
+    Raxml-ng
+    --raxmlngModel         Model uses by RAxML-NG, default: "GTR+G+I"
+    --raxmlngBootstrap     Bootstrap number, default: 200
+    --raxmlngOption        Use to add option to Raxml-ng: "--option argument"
 
 - The help message can be displayed with the command `nexftlow run ChloroBras.nf --help`
     
@@ -159,11 +171,13 @@ Each of the following parameters can be specified as command line options or in 
 
 - MUMmer/NUCMER: https://mummer4.github.io/index.html
 
-- ORGanelle ASseMbler: https://git.metabarcoding.org/org-asm/org-asm
+- ORGanelle ASseMbler - Organnot : https://git.metabarcoding.org/org-asm/org-asm / https://gricad-gitlab.univ-grenoble-alpes.fr/eric.coissac/phyloskims
 
 - Quast : https://github.com/ablab/quast
 
 - RAxML: https://cme.h-its.org/exelixis/web/software/raxml/
+
+- RAxML-NG : https://github.com/amkozlov/raxml-ng
 
 - Seqtk: https://github.com/lh3/seqt
 
@@ -194,6 +208,8 @@ Alla Mikheenko, Andrey Prjibelski, Vladislav Saveliev, Dmitry Antipov, Alexey Gu
 
 B.Q. Minh, H.A. Schmidt, O. Chernomor, D. Schrempf, M.D. Woodhams, A. von Haeseler, R. Lanfear (2020) IQ-TREE 2: New models and efficient methods for phylogenetic inference in the genomic era. Mol. Biol. Evol., 37:1530-1534. https://doi.org/10.1093/molbev/msaa015
 
-Fast-Plast: McKain et Wilson, 2017
+Alexey M. Kozlov, Diego Darriba, Tomáš Flouri, Benoit Morel, and Alexandros Stamatakis (2019) RAxML-NG: A fast, scalable, and user-friendly tool for maximum likelihood phylogenetic inference. Bioinformatics, 35 (21), 4453-4455 doi:10.1093/bioinformatics/btz305
 
-ORGanelle ASseMbler : Coissac et al. 2019
+Fast-Plast: McKain et Wilson
+
+ORGanelle ASseMbler / Organnot : Coissac et al. 2019
