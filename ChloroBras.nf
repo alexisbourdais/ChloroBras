@@ -211,8 +211,6 @@ process fastp {
 
 process getorganelle_index {
 
-    label 'getorganelle'
-
     input:
     val index
 
@@ -227,7 +225,6 @@ process getorganelle_index {
 
 process getorganelle {
 
-    label 'getorganelle' 
     label 'process_high'
 
     tag "${sampleId}"
