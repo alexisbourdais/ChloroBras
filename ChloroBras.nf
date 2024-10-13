@@ -131,7 +131,7 @@ process multiqc {
 
     label 'process_low'
 
-    publishDir "${results}/", mode: 'move'
+    publishDir "${results}/", mode: 'copy'
 
     input:
     path(allFastq)
@@ -233,6 +233,7 @@ process getorganelle {
     tag "${sampleId}"
 
     errorStrategy { task.attempt <= 3 ? 'retry' : 'ignore' }
+    maxRetries 3
 
     publishDir "${results}/Assembly/", mode: 'copy', pattern: "*getGood.fasta"
 
@@ -241,8 +242,8 @@ process getorganelle {
     tuple val(sampleId), path(reads)
 
     output :
-    path("${sampleId}_getGood.fasta"), emit: mafft
-    tuple val(sampleId), val("get"), path("${sampleId}_get.fasta"), emit: mummer
+    path("${sampleId}_getGood.fasta"), emit: mafft, optional: true
+    tuple val(sampleId), val("get"), path("${sampleId}_get.fasta"), emit: mummer, optional: true
 
     script:
     """
@@ -290,6 +291,7 @@ process fastplast {
     tag "${sampleId}"
 
     errorStrategy { task.attempt <= 3 ? 'retry' : 'ignore' }
+    maxRetries 3
 
     input:
     tuple val(sampleId), path(reads)
@@ -310,14 +312,55 @@ process fastplast {
     mv "${sampleId}/Final_Assembly/${sampleId}_FULLCP.fsa" "${sampleId}_fpt.fasta"
     """
 }
+/*
+process fastplast {
 
+    label 'process_high'
+
+    publishDir "${results}/Assembly/", mode: 'copy'
+
+    tag "${sampleId}"
+
+    errorStrategy { task.attempt <= 3 ? 'retry' : 'ignore' }
+    maxRetries 3
+
+    input:
+    tuple val(sampleId), path(reads)
+
+    output:
+    tuple val(sampleId), val("fpt"), path("${sampleId}_fpt.fasta"), emit: mummer
+    path("${sampleId}_fpt.fasta"), emit: mafft
+
+    script:
+    """
+    fast-plast.pl \
+    -1 ${reads[0]} \
+    -2 ${reads[1]} \
+    --name ${sampleId} \
+    --bowtie_index ${params.fastIndex} \
+    --threads ${task.cpus}
+
+    final_dir="${sampleId}/Final_Assembly/"
+    final_asm="${sampleId}/Final_Assembly/${sampleId}_FULLCP.fsa"
+
+    if test -d "\${final_dir}"; then
+        if test -f "\${final_asm}"; then
+            mv "\${final_asm}" "${sampleId}_fpt.fasta"
+        fi
+    else
+        exit 1
+    fi
+    """
+}
+*/
 process orgasm {
 
     label 'process_high'
 
     publishDir "${results}/Assembly/", mode: 'copy'
 
-    errorStrategy 'ignore'
+    errorStrategy { task.attempt <= 3 ? 'retry' : 'ignore' }
+    maxRetries 3
 
     tag "${sampleId}"
 
@@ -325,8 +368,8 @@ process orgasm {
     tuple val(sampleId), path(reads)
 
     output:
-    tuple val(sampleId), val("org"), path("${sampleId}_org.fasta"), emit: mummer
-    path("${sampleId}_org.fasta"), emit: mafft
+    tuple val(sampleId), val("org"), path("${sampleId}_org.fasta"), emit: mummer, optional: true
+    path("${sampleId}_org.fasta"), emit: mafft, optional: true
 
     script:
     """
@@ -392,7 +435,9 @@ process mfannot {
 
     label 'process_medium'
 
-    publishDir "${results}/Annotation/", mode: 'copy'
+    cache false
+
+    publishDir "${results}/Annotation/", mode: 'move'
 
     input:
     tuple val(sampleId), val(assembler), path(assembly)
@@ -452,6 +497,8 @@ process raxml {
 
     label 'process_high'
 
+    errorStrategy 'ignore'
+
     publishDir "${results}/RAxML/", mode: 'copy'
 
     input:
@@ -479,6 +526,8 @@ process raxml {
 process iqtree {
 
     label 'process_high'
+
+    errorStrategy 'ignore'
 
     publishDir "${results}/Iqtree/", mode: 'copy'
 
@@ -518,6 +567,8 @@ process iqtree {
 process raxmlng {
 
     label 'process_high'
+
+    errorStrategy 'ignore'
 
     publishDir "${results}/RAxML-NG/", mode: 'copy'
 
