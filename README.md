@@ -66,7 +66,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 ## Parameters
 
-Each of the following parameters can be specified as command line options or in the config file (**nextflow.config**)
+Each of the following parameters can be specified as command line options, in the launch file or in the config file (**nextflow.config**)
     
     Command : nextflow run ChloroBras.nf --workflow [assembling/analyzing/fromAsm]
 
