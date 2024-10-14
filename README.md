@@ -109,8 +109,8 @@ Command : nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda]
 
     Mummer - Quast
     --quast                 Activate quast : produce stats and circos between ref and assemblies.
-    --refFasta              Path to Fasta reference for alignment and quast, default: "./Data/brassica_oleracea.fasta"
-    --refGff                Path to Gff reference for quast, default: "./Data/brassica_oleracea.gff"
+    --refFasta              Path to Fasta reference for alignment and quast, default: "./Data/Brassica-oleracea-isolate-HDEM-chloroplast.fasta"
+    --refGff                Path to Gff reference for quast, default: "./Data/Brassica-oleracea-isolate-HDEM-chloroplast.gff3"
     --mummerAxe             Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
     --mummerFormatOut       Format of the plot, default: "png"
 
@@ -131,6 +131,9 @@ Command : nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda]
     --raxmlngModel          Model uses by RAxML-NG, default: "GTR+G+I"
     --raxmlngBootstrap      Bootstrap number, default: 200
     --raxmlngOption         Use to add option to Raxml-ng: "--option argument"
+
+    Each of the previous parameters can be specified as command line options, in launch file or in the config file
+
 
 - The help message can be displayed with the command `nexftlow run ChloroBras.nf --help`
     
