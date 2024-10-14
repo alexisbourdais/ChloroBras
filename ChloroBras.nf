@@ -464,7 +464,7 @@ process raxml {
     path(multi_fasta_align)
 
     output:
-    path("RAxML_bootstrap.model_${params.raxmlModel}")
+    path("*.model_${params.raxmlModel}")
 
     script:
     """
@@ -494,13 +494,9 @@ process iqtree {
     path(multi_fasta_align)
 
     output:
-    path("${params.iqtreePrefix}.treefile")
-    path("${params.iqtreePrefix}.iqtree")
-    path("${params.iqtreePrefix}.mldist")
-    path("${params.iqtreePrefix}.log")
+    path("iqtree_${params.iqtreeModel}.*")
 
     script:
-
     if (params.iqtreeOption=="") {
     """
     iqtree \
@@ -535,7 +531,7 @@ process raxmlng {
     path(multi_fasta_align)
 
     output:
-    /////////////////////////////////////////////////////////////////////TO ADD
+    path("raxmlng_${params.raxmlngModel}.raxml.*")
 
     script:
 
