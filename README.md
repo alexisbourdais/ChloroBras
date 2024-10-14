@@ -54,9 +54,9 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
     `ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
   
-- Replace (or not) the brassica reference genome uses for dot plot with the desired one `--nucmerRef`
+- Run the pipeline : `nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --singularity "-B root/to/mount/" --workflow assembling`
 
-- Run the pipeline : `nextflow run ChloroBras.nf --workflow assembling`
+- or edit **LaunChlorobras.sh**, then `chmod +x LaunChlorobras.sh` and `./LaunChlorobras.sh`
 
 - Check the quality of the assemblies using the graph in the **Results/Mummer** folder and keep the desired ones in the **Results/Assembly** folder. If you have pre-existing assemblies, you can add them here.
 
