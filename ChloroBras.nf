@@ -35,9 +35,9 @@ def helpMessage() {
     OPTIONAL parameter              
 
     Reads directory
-    --readDir                Default: "./Data"
-    --baseReadName           Default: "_R{1,2}"     ex: name_R1.fastq.gz & name_R2.fastq.gz
-    --formatReadName         Default: ".fastq.gz"
+    --readDir               Default: "./Data"
+    --baseReadName          Default: "_R{1,2}"     ex: name_R1.fastq.gz & name_R2.fastq.gz
+    --formatReadName        Default: ".fastq.gz"
 
     Results directory
     --resultsDir            Path to results directory, default: "./Results/"
@@ -47,49 +47,54 @@ def helpMessage() {
     --formatAsm             Default: ".fasta"
 
     Assembler
-    --assembler             Choose assembler to use (all, [getorganelle], fastplast or orgasm) 'Orgasm' and 'all' are only available for assembling workflow
+    --assembler             Choose assembler to use ('all', ['getorganelle'], 'fastplast' or 'orgasm') 'Orgasm' and 'all' are only available for assembling workflow
+
+    Quality control
+    --qc                    To activate qc
 
     Trimming
     --trimming              Add trimming step with 'fastp' or 'trimgalore'. Default: none
 
     Annotation
-    --annotation            Choose annotator to use (['all'], 'mfannot', 'organnot')             
+    --annotation            Choose annotator to use ('all', 'mfannot', 'organnot'). Default: none            
 
     GetOrganelle
-    --getIndex             Index of GetOrganelle, default: "embplant_mt,embplant_pt"
-    --getKmer              Size of kmers, default: "21,45,65,85,105"
+    --getIndex              Index of GetOrganelle, default: "embplant_pt"
+    --getKmer               Size of kmers, default: "21,45,65,85,105"
 
     Sqtk
-    --seqtkSubsamp         Subsampling, default: 2000000. Set to 0 to deactivate (assembly can be time-consuming)
+    --seqtkSubsamp          Subsampling, default: 2000000. Set to 0 to deactivate (assembly can be time-consuming)
 
     FastPlast
-    --fastIndex            Index of Fast-Plast, default: "Brassicales"
+    --fastIndex             Index of Fast-Plast, default: "Brassicales"
 
     OrgAsm
-    --orgasmProbes         Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
+    --orgasmProbes          Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
-    Mummer
-    --nucmerRef            Path to Fasta reference for alignment, default: "./Data/brassica_oleracea.fasta"
-    --mummerAxe            Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
-    --mummerFormatOut      Format of the plot, default: "png"
+    Mummer - Quast
+    --quast                 To activate quast
+    --refFasta              Path to Fasta reference for alignment and quast, default: "./Data/brassica_oleracea.fasta"
+    --refGff                Path to Gff reference for quast, default: "./Data/brassica_oleracea.gff"
+    --mummerAxe             Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
+    --mummerFormatOut       Format of the plot, default: "png"
 
     Mafft
-    --mafftMethod          Alignment methods, default: "auto"
+    --mafftMethod           Alignment methods, default: "auto"
 
     Phylogeny
-    --phylogeny            Choose phylogenetic tool (['raxml'], 'iqtree' , 'raxmlng' or 'all')
+    --phylogeny             Choose phylogenetic tool (['raxml'], 'iqtree' , 'raxmlng' or 'all')
 
     Raxml
-    --raxmlModel           Model uses by RAxML, default: "GTRGAMMAI"
+    --raxmlModel            Model uses by RAxML, default: "GTRGAMMAI"
 
     IQtree
-    --iqtreeModel          Model uses by IQtree, default: "GTR+I+G"
-    --iqtreeOption         Use to add option to iqtree: "--option argument"
+    --iqtreeModel           Model uses by IQtree, default: "GTR+I+G"
+    --iqtreeOption          Use to add option to iqtree: "--option argument"
 
     Raxml-ng
-    --raxmlngModel         Model uses by RAxML-NG, default: "GTR+G+I"
-    --raxmlngBootstrap     Bootstrap number, default: 200
-    --raxmlngOption        Use to add option to Raxml-ng: "--option argument"
+    --raxmlngModel          Model uses by RAxML-NG, default: "GTR+G+I"
+    --raxmlngBootstrap      Bootstrap number, default: 200
+    --raxmlngOption         Use to add option to Raxml-ng: "--option argument"
 
     Each of the previous parameters can be specified as command line options, in launch file or in the config file
 
@@ -239,8 +244,8 @@ process getorganelle {
     tuple val(sampleId), path(reads)
 
     output :
-    path("${sampleId}_getGood.fasta"), emit: mafft, optional: true
-    tuple val(sampleId), val("get"), path("${sampleId}_get.fasta"), emit: mummer, optional: true
+    path("${sampleId}_getGood.fasta"), emit: mafft
+    tuple val(sampleId), val("get"), path("${sampleId}_get.fasta"), emit: mummer
 
     script:
     """
@@ -325,8 +330,8 @@ process orgasm {
     tuple val(sampleId), path(reads)
 
     output:
-    tuple val(sampleId), val("org"), path("${sampleId}_org.fasta"), emit: mummer, optional: true
-    path("${sampleId}_org.fasta"), emit: mafft, optional: true
+    tuple val(sampleId), val("org"), path("${sampleId}_org.fasta"), emit: mummer
+    path("${sampleId}_org.fasta"), emit: mafft
 
     script:
     """
@@ -344,21 +349,18 @@ process quast {
 
     label 'process_low'
 
-    publishDir "${results}/Quast", mode: 'copy'
+    publishDir "${results}/", mode: 'copy'
 
     input:
-    path(assembly)
+    val(asm)
+    path(allAsm)
 
     output:
-    path("${assembly.baseName}_report.tsv")
+    tuple path("Quast_${asm}/transposed_report.tsv"), path("Quast_${asm}/report.html"), path("Quast_${asm}/report.html"), path("Quast_${asm}/circos/circos.png"), path("Quast_${asm}/genome_stats/"), path("Quast_${asm}/predicted_genes/*.gff")
 
     script:
     """
-    filename=\$(basename -- "${assembly}")
-    filename="\${filename%.*}"
-
-    quast -o \${filename} -t ${task.cpus} ${assembly}
-    mv "\${filename}/report.tsv" "\${filename}_report.tsv"
+    quast -o Quast_${asm} -t ${task.cpus} -r ${params.refFasta} --circos --glimmer --features ${params.refGff} ${allAsm}
     """
 }
 
@@ -376,7 +378,7 @@ process mummer {
 
     script:
     """
-    nucmer -p ${sampleId} ${params.nucmerRef} ${assembly}
+    nucmer -p ${sampleId} ${params.refFasta} ${assembly}
 
     mummerplot \
     -x ${params.mummerAxe} \
@@ -584,18 +586,16 @@ workflow getorganelle_wf {
     getorganelle_index(params.getIndex)
     getorganelle(getorganelle_index.out, paired_reads)
     mummer(getorganelle.out.mummer)
-    quast(getorganelle.out.mafft)
 
-    if (params.annotation=="mfannot") {
+    if (params.quast) {
+        quast("get", getorganelle.out.mafft.collect())
+    }
+
+    if (params.annotation=="mfannot" || params.annotation=="all") {
         mfannot(getorganelle.out.mummer)
     }
     
-    if (params.annotation=="organnot") {
-        organnot(getorganelle.out.mummer)
-    }
-    
-    if (params.annotation=="all") {
-        mfannot(getorganelle.out.mummer)
+    if (params.annotation=="organnot" || params.annotation=="all") {
         organnot(getorganelle.out.mummer)
     }
 
@@ -610,18 +610,16 @@ workflow fastplast_wf {
     main:
     fastplast(sub_paired_reads)
     mummer(fastplast.out.mummer)
-    quast(fastplast.out.mafft)
 
-    if (params.annotation=="mfannot") {
+    if (params.quast) {
+        quast("fpt", fastplast.out.mafft.collect())
+    }
+
+    if (params.annotation=="mfannot" || params.annotation=="all") {
         mfannot(fastplast.out.mummer)
     }
     
-    if (params.annotation=="organnot") {
-        organnot(fastplast.out.mummer)
-    }
-    
-    if (params.annotation=="all") {
-        mfannot(fastplast.out.mummer)
+    if (params.annotation=="organnot" || params.annotation=="all") {
         organnot(fastplast.out.mummer)
     }
 
@@ -636,18 +634,16 @@ workflow orgasm_wf {
     main:
     orgasm(sub_paired_reads)
     mummer(orgasm.out.mummer)
-    quast(orgasm.out.mafft)
 
-    if (params.annotation=="mfannot") {
+    if (params.quast) {
+        quast("org", orgasm.out.mafft.collect())
+    }
+
+    if (params.annotation=="mfannot" || params.annotation=="all") {
         mfannot(orgasm.out.mummer)
     }
 
-    if (params.annotation=="organnot") {
-        organnot(orgasm.out.mummer)
-    }
-    
-    if (params.annotation=="all") {
-        mfannot(orgasm.out.mummer)
+    if (params.annotation=="organnot" || params.annotation=="all") {
         organnot(orgasm.out.mummer)
     }
 
@@ -662,21 +658,16 @@ workflow analysing_wf {
     main:
     mafft(assembly.collectFile(name: 'multi_fasta', newLine: true))
 
-    if (params.phylogeny=="raxml") {
+    if (params.phylogeny=="raxml" || params.phylogeny=="all") {
         raxml(mafft.out)
     }
 
-    if (params.phylogeny=="iqtree") {
+    if (params.phylogeny=="iqtree" || params.phylogeny=="all") {
         iqtree(mafft.out)
     }
 
-    if (params.phylogeny=="raxmlng") {
+    if (params.phylogeny=="raxmlng" || params.phylogeny=="all") {
         raxmlng(mafft.out)
-    }
-    if (params.phylogeny=="all") {
-        raxml(mafft.out)
-        raxmlng(mafft.out)
-        iqtree(mafft.out)
     }
 }
 
@@ -692,10 +683,12 @@ workflow {
         paired_reads = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
         reads = Channel.fromPath("${params.readFiles}")
 
-        quality_wf(reads)
+        if (params.qc) {
+            quality_wf(reads)
+        }
 
         // GetOrganelle
-        if (params.assembler=='getorganelle' || params.assembler=="") {
+        if (params.assembler=='getorganelle') {
 
             // Trimming Fastp
             if (params.trimming=="fastp") {
@@ -893,13 +886,12 @@ workflow {
     else { 
         println """
     
-        Error : Any workflow selected or unknown assembler
+        Error : Any workflow selected !
     
         """
     helpMessage()
     exit 0 
     }
-
 }
 
 workflow.onComplete{println("Workflow execution completed sucessfully ! or not ...")}
