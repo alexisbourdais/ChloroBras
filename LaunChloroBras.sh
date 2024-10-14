@@ -3,15 +3,13 @@
 . /local/env/envnextflow-23.10.0.sh
 
 nextflow run ChloroBras.nf \
--profile slurm,conda \
+-profile standard,conda \
 --formatReadName .fq.gz \
---workflow fromReads \
---assembler fastplast
-
-#--singularity "-B /home:/home" \
+--workflow fromAsm \
+--annotation organnot \
+--singularity "-B /home:/home"
 #--qc \
 #--quast \
 #--trimming fastp \
 #--seqtkSubsamp 0 \
 #--annotation all \
-#--phylogeny all

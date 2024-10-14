@@ -72,8 +72,8 @@ def helpMessage() {
 
     Mummer - Quast
     --quast                 Activate quast : produce stats and circos between ref and assemblies.
-    --refFasta              Path to Fasta reference for alignment and quast, default: "./Data/brassica_oleracea.fasta"
-    --refGff                Path to Gff reference for quast, default: "./Data/brassica_oleracea.gff"
+    --refFasta              Path to Fasta reference for alignment and quast, default: "./Data/Brassica-oleracea-isolate-HDEM-chloroplast.fasta"
+    --refGff                Path to Gff reference for quast, default: "./Data/Brassica-oleracea-isolate-HDEM-chloroplast.gff3"
     --mummerAxe             Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
     --mummerFormatOut       Format of the plot, default: "png"
 
