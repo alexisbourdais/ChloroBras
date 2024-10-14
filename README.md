@@ -32,27 +32,27 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 ## Quick start
 
-- Install Nextflow, Conda, Docker and Singularity (see links below).
+1) Install Nextflow, Conda, Docker and Singularity (see links below).
 
-- Download and place in the same folder **ChloroBras.nf**, **nextflow.config**, **Data** (contains reference) and **bin** (contains script files). `git clone https://github.com/alexisbourdais/ChloroBras/`
+2) Download and place in the same folder **ChloroBras.nf**, **nextflow.config**, **Data** (contains reference) and **bin** (contains script files). `git clone https://github.com/alexisbourdais/ChloroBras/`
 
-- Add to **Data/** folder Illumina paired reads to use or select a directory with `--readDir`. Sequences should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz** but you can change the format with `--baseReadName` et `--formatReadName`.
+3) Add to **Data/** Illumina paired reads to use or select a directory with `--readDir`. Sequences should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz** but you can change the format with `--baseReadName` et `--formatReadName`.
 
     It is possible to use symbolic links, which can be created with the following command:
 
     `ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
   
-1) Run the pipeline : `nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --singularity "-B root/to/mount/" --workflow fromReads`
+4) Run the pipeline : `nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --singularity "-B root/to/mount/" --workflow fromReads`
 
-1') or edit **LaunChlorobras.sh**, then `chmod +x LaunChlorobras.sh` and `./LaunChlorobras.sh`
+4') or edit **LaunChlorobras.sh**, then `chmod +x LaunChlorobras.sh` and `./LaunChlorobras.sh`
 
-2) Check the quality of the assemblies using the graph in the **Results/Mummer** folder and keep the desired ones in the **Results/Assembly** folder. If you have pre-existing assemblies, you can add them here.
+5) Check the quality of the assemblies using the graph in the **Results/Mummer** folder and keep the desired ones in the **Results/Assembly** folder. If you have pre-existing assemblies, you can add them here.
 
-3) Run the pipeline : `nextflow run ChloroBras.nf --workflow fromAsm --phylogeny [raxml, iqtree, raxmlng, all]`
+6) Run the pipeline : `nextflow run ChloroBras.nf --workflow fromAsm --phylogeny [raxml, iqtree, raxmlng, all]`
 
 ## Parameters
 
-Each of the following parameters can be specified as command line options, in the launch file or in the config file (**nextflow.config**)
+Each of the following parameters can be specified as command line options or in the **launch file**.
 
 Command : nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --workflow [fromReads/fromAsm] --singularity "-B root/to/mount/"
 
