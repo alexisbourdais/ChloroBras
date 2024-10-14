@@ -879,7 +879,7 @@ workflow {
     }
 
     else if (params.workflow=="fromAsm") { 
-        assemblies = Channel.fromPath(${params.asmFiles})
+        assemblies = Channel.fromPath("${params.asmFiles}")
         analysing_wf(assemblies) 
     }
 
