@@ -8,15 +8,17 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 ![screenshot](Images/ChloroBras-Assembling_wf.png)
 
+- QC (optional)
 - Trimming with **fastp** or **trimgalore** (optional)
 - Sub-sampling step (optional) via **Seqtk** for **Fast-Plast** and **ORGanelle ASseMbler**<sup> 1 </sup>.
-- Chloroplast genome assembly by **GetOrganelle** or/and **Fast-Plast** or/and **ORGanelle ASseMbler**. 
+- Chloroplast genome assembly by **GetOrganelle**<sup> 2 </sup> or/and **Fast-Plast** or/and **ORGanelle ASseMbler**. 
 - Alignment thanks a reference genome and visualization via a dot-plot by **Mummer** and stats by **Quast** (optional)
 - Annotation with **mfannot** or/and **organnot** (optional)
-- Alignment with **Mafft**
-- Phylogenetic tree by **RAxML** or/and **IQtree** or/and **RAxML-NG**.
+- Alignment with **Mafft** and Phylogenetic tree by **RAxML** or/and **IQtree** or/and **RAxML-NG** (optional)
 
 > <sup> 1 </sup> samples from which the pipeline was developed were originally intended for the study of nuclear polymorphisms so the assembly could take several days because of the large number of reads present. **GetOrganelle** is able to perform its own subsampling.
+
+> <sup> 2 </sup> **GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC. A bash script selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -27,11 +29,6 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 - Annotation with **mfannot** or/and **organnot** (optional)
 - Alignment with **Mafft** from pre-existing assembly
 - Phylogenetic tree by **RAxML** or/and **IQtree** or/and **RAxML-NG**.
-
-
-> <sup> 2 </sup> produced the best results with our data set, following by Fastplast.
-
-> <sup> 3 </sup> **GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC. The bash script selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
 
 ## Quick start
 
@@ -147,7 +144,6 @@ Command : nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda]
 
 - Singularity: https://docs.sylabs.io/guides/3.0/user-guide/quick_start.html
 
-  
 - Fastp : https://github.com/OpenGene/fastp
 
 - Fast-Plast: https://github.com/mrmckain/Fast-Plast
