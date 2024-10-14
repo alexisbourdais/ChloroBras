@@ -70,7 +70,7 @@ Each of the following parameters can be specified as command line options or in 
     
     Command : nextflow run ChloroBras.nf --workflow [assembling/analyzing/fromAsm]
 
-    REQUIRED parameter
+        REQUIRED parameter
 
     -profile [standard]/slurm,      Select profile standard (local) or slurm. Default: standard          
              singularity/conda      Select profile singularity or conda. (FastPlast, Orgasm, mfannot and organnot are only available with singularity, even in conda profile)
@@ -86,9 +86,9 @@ Each of the following parameters can be specified as command line options or in 
     OPTIONAL parameter              
 
     Reads directory
-    --readDir                Default: "./Data"
-    --baseReadName           Default: "_R{1,2}"     ex: name_R1.fastq.gz & name_R2.fastq.gz
-    --formatReadName         Default: ".fastq.gz"
+    --readDir               Default: "./Data"
+    --baseReadName          Default: "_R{1,2}"     ex: name_R1.fastq.gz & name_R2.fastq.gz
+    --formatReadName        Default: ".fastq.gz"
 
     Results directory
     --resultsDir            Path to results directory, default: "./Results/"
@@ -98,49 +98,54 @@ Each of the following parameters can be specified as command line options or in 
     --formatAsm             Default: ".fasta"
 
     Assembler
-    --assembler             Choose assembler to use (all, [getorganelle], fastplast or orgasm) 'Orgasm' and 'all' are only available for assembling workflow
+    --assembler             Choose assembler to use ('all', ['getorganelle'], 'fastplast' or 'orgasm') 'Orgasm' and 'all' are only available for assembling workflow
+
+    Quality control
+    --qc                    To activate qc
 
     Trimming
     --trimming              Add trimming step with 'fastp' or 'trimgalore'. Default: none
 
     Annotation
-    --annotation            Choose annotator to use (['all'], 'mfannot', 'organnot')             
+    --annotation            Choose annotator to use ('all', 'mfannot', 'organnot'). Default: none            
 
     GetOrganelle
-    --getIndex             Index of GetOrganelle, default: "embplant_mt,embplant_pt"
-    --getKmer              Size of kmers, default: "21,45,65,85,105"
+    --getIndex              Index of GetOrganelle, default: "embplant_pt"
+    --getKmer               Size of kmers, default: "21,45,65,85,105"
 
     Sqtk
-    --seqtkSubsamp         Subsampling, default: 2000000. Set to 0 to deactivate (assembly can be time-consuming)
+    --seqtkSubsamp          Subsampling, default: 2000000. Set to 0 to deactivate (assembly can be time-consuming)
 
     FastPlast
-    --fastIndex            Index of Fast-Plast, default: "Brassicales"
+    --fastIndex             Index of Fast-Plast, default: "Brassicales"
 
     OrgAsm
-    --orgasmProbes         Index of ORGanelle ASseMbler, default: "protChloroArabidopsis"
+    --orgasmProbes          Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
-    Mummer
-    --nucmerRef            Path to Fasta reference for alignment, default: "./Data/brassica_oleracea.fasta"
-    --mummerAxe            Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
-    --mummerFormatOut      Format of the plot, default: "png"
+    Mummer - Quast
+    --quast                 To activate quast
+    --refFasta              Path to Fasta reference for alignment and quast, default: "./Data/brassica_oleracea.fasta"
+    --refGff                Path to Gff reference for quast, default: "./Data/brassica_oleracea.gff"
+    --mummerAxe             Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
+    --mummerFormatOut       Format of the plot, default: "png"
 
     Mafft
-    --mafftMethod          Alignment methods, default: "auto"
+    --mafftMethod           Alignment methods, default: "auto"
 
     Phylogeny
-    --phylogeny            Choose phylogenetic tool (['raxml'], 'iqtree' , 'raxmlng' or 'all')
+    --phylogeny             Choose phylogenetic tool (['raxml'], 'iqtree' , 'raxmlng' or 'all')
 
     Raxml
-    --raxmlModel           Model uses by RAxML, default: "GTRGAMMAI"
+    --raxmlModel            Model uses by RAxML, default: "GTRGAMMAI"
 
     IQtree
-    --iqtreeModel          Model uses by IQtree, default: "GTR+I+G"
-    --iqtreeOption         Use to add option to iqtree: "--option argument"
+    --iqtreeModel           Model uses by IQtree, default: "GTR+I+G"
+    --iqtreeOption          Use to add option to iqtree: "--option argument"
 
     Raxml-ng
-    --raxmlngModel         Model uses by RAxML-NG, default: "GTR+G+I"
-    --raxmlngBootstrap     Bootstrap number, default: 200
-    --raxmlngOption        Use to add option to Raxml-ng: "--option argument"
+    --raxmlngModel          Model uses by RAxML-NG, default: "GTR+G+I"
+    --raxmlngBootstrap      Bootstrap number, default: 200
+    --raxmlngOption         Use to add option to Raxml-ng: "--option argument"
 
 - The help message can be displayed with the command `nexftlow run ChloroBras.nf --help`
     
