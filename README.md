@@ -6,7 +6,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 **fromReads Mode**
 
-![screenshot](Images/ChloroBras-Assembling_wf.png)
+![screenshot](Images/ChloroBras-fromReads_wf.png)
 
 - QC (optional)
 - Trimming with **fastp** or **trimgalore** (optional)
