@@ -17,7 +17,7 @@
 def helpMessage() {
     log.info """
 
-    Command : nextflow run ChloroBras.nf --workflow [assembling/analyzing/fromAsm]
+    Command : nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --workflow [fromReads/fromAsm] --singularity "-B root/to/mount/"
 
     REQUIRED parameter
 
@@ -25,9 +25,8 @@ def helpMessage() {
              singularity/conda      Select profile singularity or conda. (FastPlast, Orgasm, mfannot and organnot are only available with singularity, even in conda profile)
                                                                          (Mummer is only available with conda, even in singularity profile)
 
-    --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes, does annotation, and allows quality assessment with quast and dotplot
-                                                    analyzing : like 'assembling' + alignement + phylogenetic tree
-                                                    fromAsm : mafft alignement and phylogenetic tree from assemblies
+    --workflow [fromReads/fromAsm]     fromReads : chloroplast genome assembly, annotation, quality assessment with quast and dotplot, phylogeny analysis from paired reads
+                                       fromAsm : mafft alignement, annotation, phylogeny analysis from assemblies
 
     Singularity
     --singularity           Mounted directory, default: "-B /scratch:/scratch -B /home:/home -B /local:/local -B /db:/db -B /groups:/groups"
@@ -47,8 +46,8 @@ def helpMessage() {
     --formatAsm             Default: ".fasta"
 
     Assembler
-    --assembler             Choose assembler to use ('all', ['getorganelle'], 'fastplast' or 'orgasm') 'Orgasm' and 'all' are only available for assembling workflow
-
+    --assembler             Choose assembler to use (['getorganelle'], 'fastplast', 'orgasm' or 'all') 
+                            Phylogeny analysis is not available with 'orgasm' and 'all'.
     Quality control
     --qc                    To activate qc
 
@@ -56,15 +55,15 @@ def helpMessage() {
     --trimming              Add trimming step with 'fastp' or 'trimgalore'. Default: none
 
     Annotation
-    --annotation            Choose annotator to use ('all', 'mfannot', 'organnot'). Default: none            
+    --annotation            Add annotation step ('all', 'mfannot', 'organnot'). Default: none            
 
     GetOrganelle
     --getIndex              Index of GetOrganelle, default: "embplant_pt"
     --getKmer               Size of kmers, default: "21,45,65,85,105"
 
     Sqtk
-    --seqtkSubsamp          Subsampling, default: 2000000. Set to 0 to deactivate (assembly can be time-consuming)
-
+    --seqtkSubsamp          Subsampling for Orgasm and FastPlast, default: 2000000. 
+                            Set to 0 to deactivate (assembly can be time-consuming)
     FastPlast
     --fastIndex             Index of Fast-Plast, default: "Brassicales"
 
@@ -72,7 +71,7 @@ def helpMessage() {
     --orgasmProbes          Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
     Mummer - Quast
-    --quast                 To activate quast
+    --quast                 Activate quast : produce stats and circos between ref and assemblies.
     --refFasta              Path to Fasta reference for alignment and quast, default: "./Data/brassica_oleracea.fasta"
     --refGff                Path to Gff reference for quast, default: "./Data/brassica_oleracea.gff"
     --mummerAxe             Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
@@ -82,7 +81,7 @@ def helpMessage() {
     --mafftMethod           Alignment methods, default: "auto"
 
     Phylogeny
-    --phylogeny             Choose phylogenetic tool (['raxml'], 'iqtree' , 'raxmlng' or 'all')
+    --phylogeny             Add phylogenetic step ('raxml', 'iqtree', 'raxmlng' or 'all'). Default : none
 
     Raxml
     --raxmlModel            Model uses by RAxML, default: "GTRGAMMAI"
@@ -423,10 +422,19 @@ process organnot {
     path("${sampleId}_${assembler}_organnot.txt")
 
     script:
-    """
-    organnot -c ${assembly}
-    mv ${sampleId}_${assembler}.annot.circular ${sampleId}_${assembler}_organnot.txt
-    """
+    if (params.workflow == "fromAsm") {
+        """
+        organnot -c ${assembly}
+        mv "${sampleId}.annot.circular" "${sampleId}_${assembler}_organnot.txt"
+        """
+    }
+    else {
+        """
+        organnot -c ${assembly}
+        mv ${sampleId}_${assembler}.annot.circular ${sampleId}_${assembler}_organnot.txt
+        """
+    }
+
 }
 
 //////////////////////  ALIGNER  //////////////////////
@@ -647,7 +655,7 @@ workflow orgasm_wf {
     assembly = orgasm.out.mafft
 }
 
-workflow analysing_wf {
+workflow phylogeny_wf {
     take:
     assembly
 
@@ -674,7 +682,7 @@ workflow analysing_wf {
 
 workflow {
 
-    if (params.workflow=="assembling" || params.workflow=="analysing") {
+    if (params.workflow=="fromReads") {
 
         paired_reads = Channel.fromFilePairs("${params.readFiles}", checkIfExists:true)
         reads = Channel.fromPath("${params.readFiles}")
@@ -703,8 +711,8 @@ workflow {
                 getorganelle_wf(paired_reads) 
             }
 
-            if (params.workflow=="analysing") {
-            analysing_wf(getorganelle_wf.out.assembly)
+            if (params.phylogeny) {
+                phylogeny_wf(getorganelle_wf.out.assembly)
             }
         }
 
@@ -758,8 +766,8 @@ workflow {
                 }
             }
 
-            if (params.workflow=="analysing") {
-            analysing_wf(fastplast_wf.out.assembly)
+            if (params.phylogeny) {
+                phylogeny_wf(fastplast_wf.out.assembly)
             }
         }
 
@@ -876,7 +884,23 @@ workflow {
 
     else if (params.workflow=="fromAsm") { 
         assemblies = Channel.fromPath("${params.asmFiles}")
-        analysing_wf(assemblies) 
+
+        if (params.phylogeny) {
+            phylogeny_wf(assemblies)
+        }
+
+        if (params.annotation) {
+            name = assemblies.map { it.baseName }
+            assembler = Channel.of("preAsm")
+            input = name.merge(assembler).merge(assemblies)
+
+            if (params.annotation=="mfannot" || params.annotation=="all") {
+                mfannot(input)
+            }
+            if (params.annotation=="organnot" || params.annotation=="all") {
+                organnot(input)
+            }
+        }
     }
 
     else { 
