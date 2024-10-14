@@ -46,7 +46,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 - Install Nextflow, Conda, Docker and Singularity (see links below).
 
-- Download and place in the same folder **ChloroBras.nf**, **nextflow.config**, **Data** (contains reference fasta) and **bin** (contains script files). `git clone https://github.com/alexisbourdais/ChloroBras/`
+- Download and place in the same folder **ChloroBras.nf**, **nextflow.config**, **Data** (contains reference) and **bin** (contains script files). `git clone https://github.com/alexisbourdais/ChloroBras/`
 
 - Add to **Data/** folder Illumina paired reads to use or select a directory with `--readDir`. Sequences should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz** but you can change the format with `--baseReadName` et `--formatReadName`.
 
