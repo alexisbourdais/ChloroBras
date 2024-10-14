@@ -4,43 +4,34 @@
 
 ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis of chloroplast genome from paired Illumina reads, developed for *Brassica* but transposable to any family of flowering plants.
 
-**Assembling Mode**
+**fromReads Mode**
 
 ![screenshot](Images/ChloroBras-Assembling_wf.png)
 
 - Trimming with **fastp** or **trimgalore** (optional)
 - Sub-sampling step (optional) via **Seqtk** for **Fast-Plast** and **ORGanelle ASseMbler**<sup> 1 </sup>.
 - Chloroplast genome assembly by **GetOrganelle** or/and **Fast-Plast** or/and **ORGanelle ASseMbler**. 
-- Alignment thanks a reference genome and visualization via a dot-plot by **Mummer**.
-- Annotation with **mfannot** or/and **organnot**.
-
-> <sup> 1 </sup> samples from which the pipeline was developed were originally intended for the study of nuclear polymorphisms so the assembly could take several days because of the large number of reads present. **GetOrganelle** is able to perform its own subsampling.
-
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-**Analysing Mode**
-
-![screenshot](Images/ChloroBras-Analysing_wf.png)
-
-- Trimming with **fastp** or **trimgalore** (optional)
-- Chloroplast genome assembly by **GetOrganelle**<sup> 2 </sup> <sup> 3 </sup> or **Fastplast**.
-- Alignment thanks a reference genome and visualization via a dot-plot by **Mummer**.
-- Annotation with **mfannot** or/and **organnot**.
+- Alignment thanks a reference genome and visualization via a dot-plot by **Mummer** and stats by **Quast** (optional)
+- Annotation with **mfannot** or/and **organnot** (optional)
 - Alignment with **Mafft**
 - Phylogenetic tree by **RAxML** or/and **IQtree** or/and **RAxML-NG**.
 
-> <sup> 2 </sup> produced the best results with our data set, following by Fastplast.
+> <sup> 1 </sup> samples from which the pipeline was developed were originally intended for the study of nuclear polymorphisms so the assembly could take several days because of the large number of reads present. **GetOrganelle** is able to perform its own subsampling.
 
-> <sup> 3 </sup> **GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC. The bash script selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
-  
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 **fromAsm Mode**
 
 ![screenshot](Images/ChloroBras-fromAsm_wf.png)
 
+- Annotation with **mfannot** or/and **organnot** (optional)
 - Alignment with **Mafft** from pre-existing assembly
 - Phylogenetic tree by **RAxML** or/and **IQtree** or/and **RAxML-NG**.
+
+
+> <sup> 2 </sup> produced the best results with our data set, following by Fastplast.
+
+> <sup> 3 </sup> **GetOrganelle** provides two assemblies per sample with the only difference being the direction of the SSC. The bash script selects the correctly structured GetOrganelle assembly thanks to a short highly conserved sequence of the ndhF gene located on the SSC.
 
 ## Quick start
 
@@ -54,29 +45,28 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
     `ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
   
-- Run the pipeline : `nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --singularity "-B root/to/mount/" --workflow assembling` or edit **LaunChlorobras.sh**, then `chmod +x LaunChlorobras.sh` and `./LaunChlorobras.sh`
+1) Run the pipeline : `nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --singularity "-B root/to/mount/" --workflow fromReads`
 
-- Check the quality of the assemblies using the graph in the **Results/Mummer** folder and keep the desired ones in the **Results/Assembly** folder. If you have pre-existing assemblies, you can add them here.
+1') or edit **LaunChlorobras.sh**, then `chmod +x LaunChlorobras.sh` and `./LaunChlorobras.sh`
 
-- Run the pipeline : `nextflow run ChloroBras.nf --workflow fromAsm`
+2) Check the quality of the assemblies using the graph in the **Results/Mummer** folder and keep the desired ones in the **Results/Assembly** folder. If you have pre-existing assemblies, you can add them here.
 
-- See phylogenetic analysis in **Results/Raxml/IQtree/RaxmlNG** folder.
+3) Run the pipeline : `nextflow run ChloroBras.nf --workflow fromAsm --phylogeny [raxml, iqtree, raxmlng, all]`
 
 ## Parameters
 
 Each of the following parameters can be specified as command line options, in the launch file or in the config file (**nextflow.config**)
-    
-    Command : nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --workflow [assembling/analyzing/fromAsm] --singularity "-B root/to/mount/"
 
-        REQUIRED parameter
+Command : nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --workflow [fromReads/fromAsm] --singularity "-B root/to/mount/"
+
+    REQUIRED parameter
 
     -profile [standard]/slurm,      Select profile standard (local) or slurm. Default: standard          
              singularity/conda      Select profile singularity or conda. (FastPlast, Orgasm, mfannot and organnot are only available with singularity, even in conda profile)
                                                                          (Mummer is only available with conda, even in singularity profile)
 
-    --workflow [assembling/analyzing/fromAsm]       assembling : assembles genomes, does annotation, and allows quality assessment with quast and dotplot
-                                                    analyzing : like 'assembling' + alignement + phylogenetic tree
-                                                    fromAsm : mafft alignement and phylogenetic tree from assemblies
+    --workflow [fromReads/fromAsm]     fromReads : chloroplast genome assembly, annotation, quality assessment with quast and dotplot, phylogeny analysis from paired reads
+                                       fromAsm : mafft alignement, annotation, phylogeny analysis from assemblies
 
     Singularity
     --singularity           Mounted directory, default: "-B /scratch:/scratch -B /home:/home -B /local:/local -B /db:/db -B /groups:/groups"
@@ -96,8 +86,8 @@ Each of the following parameters can be specified as command line options, in th
     --formatAsm             Default: ".fasta"
 
     Assembler
-    --assembler             Choose assembler to use ('all', ['getorganelle'], 'fastplast' or 'orgasm') 'Orgasm' and 'all' are only available for assembling workflow
-
+    --assembler             Choose assembler to use (['getorganelle'], 'fastplast', 'orgasm' or 'all') 
+                            Phylogeny analysis is not available with 'orgasm' and 'all'.
     Quality control
     --qc                    To activate qc
 
@@ -105,15 +95,15 @@ Each of the following parameters can be specified as command line options, in th
     --trimming              Add trimming step with 'fastp' or 'trimgalore'. Default: none
 
     Annotation
-    --annotation            Choose annotator to use ('all', 'mfannot', 'organnot'). Default: none            
+    --annotation            Add annotation step ('all', 'mfannot', 'organnot'). Default: none            
 
     GetOrganelle
     --getIndex              Index of GetOrganelle, default: "embplant_pt"
     --getKmer               Size of kmers, default: "21,45,65,85,105"
 
     Sqtk
-    --seqtkSubsamp          Subsampling, default: 2000000. Set to 0 to deactivate (assembly can be time-consuming)
-
+    --seqtkSubsamp          Subsampling for Orgasm and FastPlast, default: 2000000. 
+                            Set to 0 to deactivate (assembly can be time-consuming)
     FastPlast
     --fastIndex             Index of Fast-Plast, default: "Brassicales"
 
@@ -121,7 +111,7 @@ Each of the following parameters can be specified as command line options, in th
     --orgasmProbes          Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
     Mummer - Quast
-    --quast                 To activate quast (need gff reference)
+    --quast                 Activate quast : produce stats and circos between ref and assemblies.
     --refFasta              Path to Fasta reference for alignment and quast, default: "./Data/brassica_oleracea.fasta"
     --refGff                Path to Gff reference for quast, default: "./Data/brassica_oleracea.gff"
     --mummerAxe             Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
@@ -131,7 +121,7 @@ Each of the following parameters can be specified as command line options, in th
     --mafftMethod           Alignment methods, default: "auto"
 
     Phylogeny
-    --phylogeny             Choose phylogenetic tool (['raxml'], 'iqtree' , 'raxmlng' or 'all')
+    --phylogeny             Add phylogenetic step ('raxml', 'iqtree', 'raxmlng' or 'all'). Default : none
 
     Raxml
     --raxmlModel            Model uses by RAxML, default: "GTRGAMMAI"
