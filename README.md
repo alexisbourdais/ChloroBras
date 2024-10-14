@@ -68,7 +68,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 Each of the following parameters can be specified as command line options, in the launch file or in the config file (**nextflow.config**)
     
-    Command : nextflow run ChloroBras.nf --workflow [assembling/analyzing/fromAsm]
+    Command : nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --workflow [assembling/analyzing/fromAsm] --singularity "-B root/to/mount/"
 
         REQUIRED parameter
 
@@ -123,7 +123,7 @@ Each of the following parameters can be specified as command line options, in th
     --orgasmProbes          Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
     Mummer - Quast
-    --quast                 To activate quast
+    --quast                 To activate quast (need gff reference)
     --refFasta              Path to Fasta reference for alignment and quast, default: "./Data/brassica_oleracea.fasta"
     --refGff                Path to Gff reference for quast, default: "./Data/brassica_oleracea.gff"
     --mummerAxe             Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
