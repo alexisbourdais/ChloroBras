@@ -5,7 +5,7 @@
 nextflow run ChloroBras.nf \
 -profile slurm,conda \
 --formatReadName .fq.gz \
---workflow assembling \
+--workflow fromReads \
 --assembler fastplast
 
 #--singularity "-B /home:/home" \
