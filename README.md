@@ -54,8 +54,6 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 Each of the following parameters can be specified as command line options or in the **launch file**.
 
-Command : nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --workflow [fromReads/fromAsm] --singularity "-B root/to/mount/"
-
     REQUIRED parameter
 
     -profile [standard]/slurm,      Select profile standard (local) or slurm. Default: standard          
