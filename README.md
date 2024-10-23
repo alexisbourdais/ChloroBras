@@ -55,6 +55,8 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 - Each of the following parameters can be specified as command line options or in the **launch file**.
 - The help message can be displayed with the command `nexftlow run ChloroBras.nf --help`
 
+
+```
     REQUIRED parameter
 
     -profile [standard]/slurm,      Select profile standard (local) or slurm. Default: standard          
@@ -130,7 +132,8 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
     --raxmlngModel          Model uses by RAxML-NG, default: "GTR+G+I"
     --raxmlngBootstrap      Bootstrap number, default: 200
     --raxmlngOption         Use to add option to Raxml-ng: "--option argument"
-    
+```
+
 ## Documentation
 
 - Nextflow: https://www.nextflow.io/docs/latest/index.html
