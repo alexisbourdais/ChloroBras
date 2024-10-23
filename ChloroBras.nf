@@ -475,4 +475,11 @@ workflow {
     }
 }
 
-workflow.onComplete{println("Workflow execution completed sucessfully ! or not ...")}
+workflow.onComplete{
+    if (workflow.success) {
+        println("Workflow execution completed sucessfully !")
+    } 
+    else {
+        println("Workflow execution completed with errors !")
+    }
+}
