@@ -32,29 +32,30 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 ## Quick start
 
-1) Install Nextflow, Conda, Docker and Singularity (see links below).
+1) Install **Nextflow**, **Conda**, **Docker** and **Singularity** (see links below).
 
-2) Download and place in the same folder **ChloroBras.nf**, **nextflow.config**, **Data** (contains reference) and **bin** (contains script files). `git clone https://github.com/alexisbourdais/ChloroBras/`
+2) `git clone https://github.com/alexisbourdais/ChloroBras/`
 
-3) Add to **Data/** Illumina paired reads to use or select a directory with `--readDir`. Sequences should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz** but you can change the format with `--baseReadName` et `--formatReadName`.
+3) Add to **Data/** Illumina paired reads to use or select a directory with `--readDir`.
+   
+   Sequences should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz** but you can change the format with
 
-    It is possible to use symbolic links, which can be created with the following command:
+   `--baseReadName` et `--formatReadName`.
+
+   It is possible to use symbolic links, which can be created with the following command:
 
     `ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
   
-4) Run the pipeline : `nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --singularity "-B root/to/mount/" --workflow fromReads`
+4) Run the pipeline :
+  
+   `nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --singularity "-B root/to/mount/" --workflow [fromReads/fromAsm] --annotation [organnot/mfannot]`
 
-4') or edit **LaunChlorobras.sh**, then `chmod +x LaunChlorobras.sh` and `./LaunChlorobras.sh`
-
-5) Check the quality of the assemblies using the graph in the **Results/Mummer** folder and keep the desired ones in the **Results/Assembly** folder. If you have pre-existing assemblies, you can add them here.
-
-6) Run the pipeline : `nextflow run ChloroBras.nf --workflow fromAsm --phylogeny [raxml, iqtree, raxmlng, all]`
+     or edit **LaunChlorobras.sh**, then `chmod +x LaunChlorobras.sh` and `./LaunChlorobras.sh`
 
 ## Parameters
 
 - Each of the following parameters can be specified as command line options or in the **launch file**.
 - The help message can be displayed with the command `nexftlow run ChloroBras.nf --help`
-
 
 ```
     REQUIRED parameter
@@ -109,7 +110,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
     --orgasmProbes          Index of ORGanelle ASeMbler, default: "protChloroArabidopsis"
 
     Mummer - Quast
-    --quast                 Activate quast : produce stats and circos between ref and assemblies.
+    --quast                 To activate quast : produce stats and circos between ref and assemblies.
     --refFasta              Path to Fasta reference for alignment and quast, default: "./Data/Brassica-oleracea-isolate-HDEM-chloroplast.fasta"
     --refGff                Path to Gff reference for quast, default: "./Data/Brassica-oleracea-isolate-HDEM-chloroplast.gff3"
     --mummerAxe             Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
