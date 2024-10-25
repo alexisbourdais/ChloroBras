@@ -111,7 +111,7 @@ if (params.help){
 ////////////    Modules     //////////////////
 //////////////////////////////////////////////
 
-include { fastp }			                    from './modules/fastp'
+include { fastp }                               from './modules/fastp'
 include { trimgalore }                          from './modules/trimgalore'
 include { fastqc }                              from './modules/fastqc'
 include { multiqc }                             from './modules/multiqc'
