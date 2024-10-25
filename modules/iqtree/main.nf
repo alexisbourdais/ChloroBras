@@ -4,7 +4,7 @@ process iqtree {
 
     errorStrategy 'ignore'
 
-    publishDir "${results}/Iqtree/", mode: 'copy'
+    publishDir "${params.resultsDir}/Iqtree/", mode: 'copy'
 
     input:
     path(multi_fasta_align)

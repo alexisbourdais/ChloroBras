@@ -4,7 +4,7 @@ process mfannot {
 
     cache false
 
-    publishDir "${results}/Annotation/", mode: 'move'
+    publishDir "${params.resultsDir}/Annotation/", mode: 'move'
 
     input:
     tuple val(sampleId), val(assembler), path(assembly)

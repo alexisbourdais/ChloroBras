@@ -2,7 +2,7 @@ process orgasm {
 
     label 'process_high'
 
-    publishDir "${results}/Assembly/", mode: 'copy'
+    publishDir "${params.resultsDir}/Assembly/", mode: 'copy'
 
     errorStrategy { task.attempt <= 3 ? 'retry' : 'ignore' }
     maxRetries 3

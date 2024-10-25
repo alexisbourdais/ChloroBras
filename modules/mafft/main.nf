@@ -2,7 +2,7 @@ process mafft {
 
     label 'process_high'
 
-    publishDir "${results}/Mafft/", mode: 'copy'
+    publishDir "${params.resultsDir}/Mafft/", mode: 'copy'
 
     input:
     path(multiFasta)

@@ -21,7 +21,7 @@ process getorganelle {
     errorStrategy { task.attempt <= 3 ? 'retry' : 'ignore' }
     maxRetries 3
 
-    publishDir "${results}/Assembly/", mode: 'copy', pattern: "*getGood.fasta"
+    publishDir "${params.resultsDir}/Assembly/", mode: 'copy', pattern: "*getGood.fasta"
 
     input:
     val index

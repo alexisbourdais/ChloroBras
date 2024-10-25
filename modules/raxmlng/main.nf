@@ -4,7 +4,7 @@ process raxmlng {
 
     errorStrategy 'ignore'
 
-    publishDir "${results}/RAxML-NG/", mode: 'copy'
+    publishDir "${params.resultsDir}/RAxML-NG/", mode: 'copy'
 
     input:
     path(multi_fasta_align)

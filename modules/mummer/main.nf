@@ -2,7 +2,7 @@ process mummer {
 
     label 'process_low'
 
-    publishDir "${results}/Mummer", mode: 'copy'
+    publishDir "${params.resultsDir}/Mummer", mode: 'copy'
 
     input:
     tuple val(sampleId), val(assembler), path(assembly)

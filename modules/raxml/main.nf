@@ -4,7 +4,7 @@ process raxml {
 
     errorStrategy 'ignore'
 
-    publishDir "${results}/RAxML/", mode: 'copy'
+    publishDir "${params.resultsDir}/RAxML/", mode: 'copy'
 
     input:
     path(multi_fasta_align)

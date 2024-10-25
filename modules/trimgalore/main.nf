@@ -4,7 +4,7 @@ process trimgalore {
 
     tag "${sampleId}"
 
-    publishDir "${results}/Trimming_trimgalore/", mode: 'copy'
+    publishDir "${params.resultsDir}/Trimming_trimgalore/", mode: 'copy'
 
     input:
     tuple val(sampleId), path(reads)

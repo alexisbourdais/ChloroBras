@@ -2,7 +2,7 @@ process fastplast {
 
     label 'process_high'
 
-    publishDir "${results}/Assembly/", mode: 'copy'
+    publishDir "${params.resultsDir}/Assembly/", mode: 'copy'
 
     tag "${sampleId}"
 

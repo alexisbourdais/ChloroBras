@@ -2,7 +2,7 @@ process multiqc {
 
     label 'process_low'
 
-    publishDir "${results}/", mode: 'copy'
+    publishDir "${params.resultsDir}/", mode: 'copy'
 
     input:
     path(allFastq)

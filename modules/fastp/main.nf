@@ -4,7 +4,7 @@ process fastp {
 
     tag "${sampleId}"
 
-    publishDir "${results}/Trimming_fastp/", mode: 'copy'
+    publishDir "${params.resultsDir}/Trimming_fastp/", mode: 'copy'
 
     input:
     tuple val(sampleId), path(reads)

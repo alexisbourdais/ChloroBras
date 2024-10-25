@@ -2,7 +2,7 @@ process organnot {
 
     label 'process_medium'
 
-    publishDir "${results}/Annotation/", mode: 'copy'
+    publishDir "${params.resultsDir}/Annotation/", mode: 'copy'
 
     input:
     tuple val(sampleId), val(assembler), path(assembly)
