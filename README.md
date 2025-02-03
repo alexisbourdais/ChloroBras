@@ -36,7 +36,9 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 2) `git clone https://github.com/alexisbourdais/ChloroBras/`
 
-3) Add to **Data/** Illumina paired reads to use or select a directory with `--readDir`.
+3) Change script permissions in bin/ `chmod +x bin/*`
+
+4) Add to **Data/** Illumina paired reads to use or select a directory with `--readDir`.
    
    Sequences should have a structured name like: **xxx_R1.fastq.gz** and **xxx_R2.fastq.gz** but you can change the format with
 
@@ -46,7 +48,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
     `ln -s path/to/xxx_R1.fastq.gz xxx_R1.fastq.gz`
   
-4) Run the pipeline :
+5) Run the pipeline :
   
    `nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --singularity "-B root/to/mount/" --workflow [fromReads/fromAsm] --annotation [organnot/mfannot]`
 
