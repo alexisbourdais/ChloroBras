@@ -32,7 +32,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 ## Quick start
 
-1) Install **Nextflow**, **Conda**, **Docker** and **Singularity** (see links below).
+1) Install **Nextflow** and **Singularity** (**conda** optional).
 
 2) `git clone https://github.com/alexisbourdais/ChloroBras/`
 
@@ -50,7 +50,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
   
 5) Run the pipeline :
   
-   `nextflow run ChloroBras.nf -profile [standard/slurm,singularity/conda] --singularity "-B root/to/mount/" --workflow [fromReads/fromAsm] --annotation [organnot/mfannot]`
+   `nextflow run ChloroBras.nf -profile [standard/slurm,singularity] --singularity "-B /home:/home" --workflow [fromReads/fromAsm] --annotation [organnot/mfannot]`
 
      or edit **LaunChlorobras.sh**, then `chmod +x LaunChlorobras.sh` and `./LaunChlorobras.sh`
 
@@ -64,13 +64,12 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
     -profile [standard]/slurm,      Select profile standard (local) or slurm. Default: standard          
              singularity/conda      Select profile singularity or conda. (FastPlast, Orgasm, mfannot and organnot are only available with singularity, even in conda profile)
-                                                                         (Mummer is only available with conda, even in singularity profile)
 
     --workflow [fromReads/fromAsm]     fromReads : chloroplast genome assembly, annotation, quality assessment with quast and dotplot, phylogeny analysis from paired reads
                                        fromAsm : mafft alignement, annotation, phylogeny analysis from assemblies
 
     Singularity
-    --singularity           Mounted directory, default: "-B /scratch:/scratch -B /home:/home -B /local:/local -B /db:/db -B /groups:/groups"
+    --singularity           Mounted directory, default: "-B /home:/home"
 
     OPTIONAL parameter              
 
@@ -82,12 +81,12 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
     Results directory
     --resultsDir            Path to results directory, default: "./Results/"
 
-    Assembly directory
+    Assembly directory (for fromAsm mode)
     --assemblyDir           Path to assembly directory, default: "./Results/Assembly/"
     --formatAsm             Default: ".fasta"
 
     Assembler
-    --assembler             Choose assembler to use (['getorganelle'], 'fastplast', 'orgasm' or 'all') 
+    --assembler             Choose assembler to use: ['getorganelle'], 'fastplast', 'orgasm' or 'all'
                             Phylogeny analysis is not available with 'orgasm' and 'all'.
     Quality control
     --qc                    To activate qc
@@ -113,10 +112,8 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
     Mummer - Quast
     --quast                 To activate quast : produce stats and circos between ref and assemblies.
-    --refFasta              Path to Fasta reference for alignment and quast, default: "./Data/Brassica-oleracea-isolate-HDEM-chloroplast.fasta"
     --refGff                Path to Gff reference for quast, default: "./Data/Brassica-oleracea-isolate-HDEM-chloroplast.gff3"
-    --mummerAxe             Size of X-axis (fonction of genome's size), default (plastome): "'[0:154000]'"
-    --mummerFormatOut       Format of the plot, default: "png"
+    --refFasta              Path to Fasta reference for Mummer alignment and quast, default: "./Data/Brassica-oleracea-isolate-HDEM-chloroplast.fasta"
 
     Mafft
     --mafftMethod           Alignment methods, default: "auto"
