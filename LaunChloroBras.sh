@@ -1,15 +1,12 @@
 #!  /usr/bin/bash
 
-. /local/env/envnextflow-23.10.0.sh
-
 nextflow run ChloroBras.nf \
--profile standard,conda \
+-profile slurm,singularity \
+--singularity "-B /home:/home" \
 --formatReadName .fq.gz \
---workflow fromAsm \
---annotation organnot \
---singularity "-B /home:/home"
+--workflow fromReads \
+--annotation all
 #--qc \
 #--quast \
 #--trimming fastp \
-#--seqtkSubsamp 0 \
-#--annotation all \
+#--seqtkSubsamp 0
