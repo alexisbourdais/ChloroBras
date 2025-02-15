@@ -15,9 +15,9 @@ process mummer {
     nucmer -p ${sampleId} ${params.refFasta} ${assembly}
 
     mummerplot \
-    -x ${params.mummerAxe} \
+    -x '[0:154000]' \
     -p ${sampleId}_${assembler} \
-    -t ${params.mummerFormatOut} \
+    -t "png" \
     "${sampleId}.delta"
     """
 }
