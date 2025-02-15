@@ -32,7 +32,7 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
 
 ## Quick start
 
-1) Install **Nextflow** and **Singularity** (**conda** optional).
+1) Install **Nextflow**, **Singularity** and **conda**.
 
 2) `git clone https://github.com/alexisbourdais/ChloroBras/`
 
@@ -63,7 +63,9 @@ ChloroBras is a nextflow pipeline allowing the automatic assembly and analysis o
     REQUIRED parameter
 
     -profile [standard]/slurm,      Select profile standard (local) or slurm. Default: standard          
-             singularity/conda      Select profile singularity or conda. (FastPlast, Orgasm, mfannot and organnot are only available with singularity, even in conda profile)
+             singularity/conda      Select profile singularity or conda.
+                                    FastPlast, Orgasm, mfannot and organnot are only available with singularity, even in conda profile.
+                                    Mummer has error with singularity, so available with conda only, even in singularity profile.
 
     --workflow [fromReads/fromAsm]     fromReads : chloroplast genome assembly, annotation, quality assessment with quast and dotplot, phylogeny analysis from paired reads
                                        fromAsm : mafft alignement, annotation, phylogeny analysis from assemblies
