@@ -30,6 +30,7 @@ process getorganelle {
     output :
     path("${sampleId}_getGood.fasta"), emit: mafft
     tuple val(sampleId), val("get"), path("${sampleId}_get.fasta"), emit: mummer
+    tuple val(sampleId), val("get"), path("${sampleId}_getGood.fasta"), emit: annot
 
     script:
     """
