@@ -153,11 +153,11 @@ workflow getorganelle_wf {
     }
 
     if (params.annotation=="mfannot" || params.annotation=="all") {
-        mfannot(getorganelle.out.mummer)
+        mfannot(getorganelle.out.annot)
     }
     
     if (params.annotation=="organnot" || params.annotation=="all") {
-        organnot(getorganelle.out.mummer)
+        organnot(getorganelle.out.annot)
     }
 
     emit:
